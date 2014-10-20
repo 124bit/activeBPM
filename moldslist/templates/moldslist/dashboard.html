@@ -1,0 +1,137 @@
+{% extends "moldslist/base.html" %}
+{% load moldslist_tags %}
+
+{% block middle %}
+<div class="row">
+    <div class='col-md-8'>
+        <div class="panel panel-default">
+            <div class="panel-heading">Ваши задачи</div>
+            <table class="table">
+                <tr>
+                    <th>Задача</th>
+                    <th>Форма</th>
+                    <th>Процесс</th>
+                    <th>Получено</th>
+                </tr>
+                {% for proc in assignee_task_table %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'moldslist:process-task' %}?proc={{ proc.id }}&task={{ proc.task.id }}">{{ proc.task.name }}</a>
+                        </td>
+                        <td>
+                            {{ proc.mold_name }}
+                        </td>
+                        <td>
+                            {{ proc.name }}
+                        </td>
+                        <td>
+                            {{  proc.task.assigment_time|format_date:"%d %b %H:%M" }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+
+    <div class='col-md-4'>
+        <div class="panel panel-default">
+            <div class="panel-heading">Начать процесс</div>
+            <div class="list-group">
+                {% for proc in available_proc_list %}
+
+                      <span class="list-group-item">
+                        <a href="{% url 'moldslist:process-init' %}?id={{ proc.id }}" ><button class="btn  btn-success btn-xs pull-right"> начать </button></a>
+                        <h5 class="list-group-item-heading">{{ proc.name }}</h5>
+                        <p class="list-group-item-text">{{ proc.documentation }}</p>
+                      </span>
+
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">Активные процессы</div>
+            <table class="table">
+                <tr>
+                    <th>Форма</th>
+                    <th>Процесс</th>
+                    <th>Задание (исполнитель)</th>
+                    <th>Получено</th>
+                </tr>
+                {% for proc in active_molds_proc_table %}
+                    <tr>
+
+                        <td>
+                            <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.mold_number }} {{ proc.mold_name }}</a>
+                        </td>
+
+                        <td>
+                            {{ proc.name }}
+                        </td>
+                        <td>
+                            {% for task in proc.tasks %}
+                                {{ task.name }} ({{ task.assignee }})
+                                {% if not forloop.last %}
+                                    <br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for task in proc.tasks %}
+                                {{ task.assigment_time|format_date:"%d %b %H:%M" }}
+                                {% if not forloop.last %}
+                                    <br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">Последние законченные процессы</div>
+            <table class="table">
+                <tr>
+                    <th>Форма</th>
+                    <th>Процесс</th>
+                    <th>Длительность</th>
+                    <th>Закончен</th>
+                </tr>
+                {% for proc in finished_molds_proc_table %}
+                    {%  if forloop.counter < 5 %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.mold_number }} {{ proc.mold_name }}</a>
+                            </td>
+
+                            <td>
+                                {{ proc.name }}
+                            </td>
+
+                            <td>
+                                {{ proc.time_spend|format_delta }}
+                            </td>
+
+                            <td>
+                                {{ proc.finish_time|format_date:"%d %b %Y" }}
+                            </td>
+
+
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

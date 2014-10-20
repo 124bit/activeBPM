@@ -1,0 +1,9 @@
+
+<form action="{% url 'moldslist:process-init' %}?id={{ request.GET.id }}" method="post">
+
+    {{ form.non_field_errors }}
+    {{ task_form }}
+    {% csrf_token %}
+    <input type="hidden" name="id" value='{{ request.GET.id }}' />
+    <input type="submit" value="Submit" />
+</form>

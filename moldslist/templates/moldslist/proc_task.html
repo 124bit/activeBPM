@@ -1,0 +1,44 @@
+{% extends "moldslist/proc_base.html" %}
+{% load moldslist_tags %}
+
+{% block task %}
+    <div class = 'row'>
+        <div class='col-md-12'>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {% block task_heading %}
+                        <h3> Задача: <i>{{ task_name }}</i></h3>
+                        {% if task_help_text %}<p> {{ task_help_text }} </p> {% endif %}
+                    {% endblock %}
+                </div>
+                <div class="panel-body">
+                    {% block task_body %}
+                        <form role="form" action="{% url 'moldslist:process-task' %}?proc={{ request.GET.proc }}&task={{ request.GET.task }}" method="post">
+                            {{ form.non_field_errors }}
+                            {% block task_form_insides %}
+                                {% for field in task_form  %}
+                                    <div class="form-group">
+                                        {{ field.label_tag }}
+                                        {{ field|add_attributes:'class:form-control' }}
+                                    </div>
+                                {% endfor %}
+                            {% endblock %}
+                            {% csrf_token %}
+                            <input type="hidden" name="proc" value='{{ request.GET.proc }}' />
+                            <input type="hidden" name="task" value='{{ request.GET.task }}' />
+                            {% block submit_button %}
+                                <button class="btn btn-default" type="submit" />Завершить задачу</button>
+                            {% endblock %}
+                        </form>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var show_assignee_task = function  () {
+                $('g[data-element-id="' + '{{ task_def_key }}' + '"]').find('.djs-outline').attr('stroke', 'Maroon');
+                $('g[data-element-id="' + '{{ task_def_key }}' + '"]').find('.djs-outline').attr('stroke-dasharray', '5,5');
+            }
+    </script>
+{% endblock %}

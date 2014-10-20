@@ -49,9 +49,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'devhim_dev.urls'
+ROOT_URLCONF = 'devhim.urls'
 
-WSGI_APPLICATION = 'devhim_dev.wsgi.application'
+WSGI_APPLICATION = 'devhim.wsgi.application'
 
 
 # Database
@@ -66,17 +66,29 @@ DATABASES = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
+TIME_ZONE = 'Europe/Kiev'
 
-LANGUAGE_CODE = 'en-us'
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+USE_I18N = False
 
-USE_I18N = True
+USE_L10N = False
 
-USE_L10N = True
+USE_TZ = False
 
-USE_TZ = True
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request"
 
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
@@ -84,5 +96,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR,  'templates'),
 )
+
+from django.core.urlresolvers import reverse_lazy
+
+LOGIN_URL = reverse_lazy('admin:login')
+LOGIN_REDIRECT_URL = '/'
