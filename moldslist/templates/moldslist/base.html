@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+        <title>УХП разработка форм</title>
     </head>
     <body>
     <nav class="navbar navbar-default " role="navigation">
@@ -28,8 +29,8 @@
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="{%  active 'moldslist:dashboard' %}"><a href="{% url "moldslist:dashboard" %}">Главная</a></li>
-            <li class="{%  active 'moldslist:finished-processes' %}"><a href="{% url "moldslist:finished-processes" %}">Все процессы</a></li>
-            <li class="{%  active 'moldslist:finished-processes' %}"><a href="{% url "moldslist:finished-processes" %}">Управление процессами</a></li>
+            <li class="{%  active 'moldslist:all-processes' %}"><a href="{% url "moldslist:all-processes" %}">Все процессы</a></li>
+            <li class="{%  active 'moldslist:process-control' %}"><a href="{% url "moldslist:process-control" %}">Управление процессами</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="{% url "admin:logout" %}?next={{ request.get_full_path }}">Выйти</a></li>

@@ -9,7 +9,7 @@ def active(context, url_name):
     import re
     request = context['request']
     url = reverse(url_name)
-    if re.search(url, request.path):
+    if url == request.path:
         return 'active'
     return ''
 

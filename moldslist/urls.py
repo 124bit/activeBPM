@@ -8,7 +8,8 @@ moldslist_patterns = patterns('',
     url(r'^process$', views.proc_status_view, name='process-status'),
     url(r'^process-init$', views.proc_init_view, name='process-init'),
     url(r'^process-task$', views.proc_task_view, name='process-task'),
-    url(r'^finished-processes$', views.proc_task_view, name='finished-processes'),
+    url(r'^all-processes$', views.allprocesses, name='all-processes'),
+    url(r'^process-control$', views.proc_control, name='process-control'),
 
     url(r'^process-xml$', views.proc_xml, name='process-xml'),
 

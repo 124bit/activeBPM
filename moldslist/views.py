@@ -5,15 +5,21 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from moldslist import proc_forms
 from dateutil.parser import parse as date_parse
+
+
 def proc_vars_to_dict(proc_vars):
     return {var['name']: var['value'] for var in proc_vars}
 
+
 #TODO change place with mold name and number
 #TODO add proc has variable "mold" check
-def get_proc_table(rest_client, active=True):
-    if active:
-        dashbord_proc_instances = rest_client.get_proc_instances(category='Molds')
-    else:
+#TODO add rajise if another not from three stuses
+def get_proc_table(rest_client, status='active'):
+    if status == 'active':
+        dashbord_proc_instances = rest_client.get_proc_instances(category='Molds', suspended_instnc=False)
+    elif status == 'suspended':
+        dashbord_proc_instances = rest_client.get_proc_instances(category='Molds', suspended_instnc=True)
+    elif status == 'finished':
         dashbord_proc_instances = rest_client.get_historic_proc_instances(category='Molds')
 
     dashbord_table = []
@@ -34,7 +40,7 @@ def get_proc_table(rest_client, active=True):
 
         row_dict = {'name': name, 'mold_name': mold_name, 'mold_number': mold_number,
                             'tasks': active_tasks_repr, 'id': proc['id']}
-        if not active:
+        if status == 'finished':
             row_dict['finish_time'] = date_parse(proc['endTime'])
             row_dict['time_spend'] = date_parse(proc['endTime']) - date_parse(proc['startTime'])
         dashbord_table.append(row_dict)
@@ -62,9 +68,9 @@ def dashboard(request):
 
     active_molds_proc_table = get_proc_table(rest_client)
     assignee_task_table = get_assignee_task_table(active_molds_proc_table, request.user.bpmsuser.password)
-    finished_molds_proc_table = reversed(get_proc_table(rest_client, active=False))
+    finished_molds_proc_table = reversed(get_proc_table(rest_client, status='finished'))
 
-    available_proc_list = rest_client.get_proc_definitions(category="Molds", startableByUser=request.user.bpmsuser.login)
+    available_proc_list = rest_client.get_proc_definitions(category="Molds", startableByUser=request.user.bpmsuser.login, latest=True)
 
     tmpl_dict = {'active_molds_proc_table': active_molds_proc_table,
                  'finished_molds_proc_table': finished_molds_proc_table,
@@ -72,17 +78,41 @@ def dashboard(request):
                  'available_proc_list': available_proc_list}
     return render(request, 'moldslist/dashboard.html', tmpl_dict)
 
+@login_required()
+def allprocesses(request):
+    rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
+
+    active_molds_proc_table = get_proc_table(rest_client)
+    suspended_molds_proc_table = reversed(get_proc_table(rest_client, status='suspended'))
+    finished_molds_proc_table = reversed(get_proc_table(rest_client, status='finished'))
+
+    tmpl_dict = {
+        'active_molds_proc_table': active_molds_proc_table,
+        'finished_molds_proc_table': finished_molds_proc_table,
+        'suspended_molds_proc_table': suspended_molds_proc_table,
+        }
+
+    return render(request, 'moldslist/allprocesses.html', tmpl_dict)
+
+
+
+
 
 #TODO check if there a GET paramters
 #TODO add proc has variable "mold" check
 def get_proc_status_dict(rest_client, proc_instnc_id):
     proc_historic_instnc = rest_client.get_historic_proc_instance(proc_instnc_id)
     if proc_historic_instnc['endTime']:
-        proc_is_active = False
+        proc_status = 'finished'
         proc_instnc = proc_historic_instnc
     else:
-        proc_is_active = True
         proc_instnc = rest_client.get_proc_instance(proc_instnc_id)
+        if proc_instnc['suspended']:
+            proc_status = 'suspended'
+        else:
+            proc_status = 'acive'
+
+
 
     proc_def_id = proc_instnc['processDefinitionId']
     proc_def = rest_client.get_proc_definition(proc_def_id)
@@ -100,7 +130,7 @@ def get_proc_status_dict(rest_client, proc_instnc_id):
         mold_number = '-'
 
     tmpl_dict = {'proc_name': proc_def['name'], 'proc_def_id': proc_def_id,
-                 'proc_is_active': proc_is_active,
+                 'proc_status': proc_status,
                  'active_tasks': active_tasks, 'finished_tasks': finished_tasks,
                  'mold_name': mold_name, 'mold_number': mold_number,
                  'proc_help_text': str(proc_def['description'])
@@ -148,11 +178,10 @@ def proc_task_view(request):
     tmpl_dict = get_proc_status_dict(rest_client, proc_instnc_id)
     tmpl_dict['task_def_key'] = task['taskDefinitionKey']
     tmpl_dict['task_form'] = task_form
-    tmpl_dict['task_template'] = task_tmpl
     tmpl_dict['task_help_text'] = task['description']
     tmpl_dict['task_name'] = task['name']
 
-    return render(request, 'moldslist/proc_task.html', tmpl_dict)
+    return render(request, task_tmpl, tmpl_dict)
 
 
 def proc_init_view(request):
@@ -179,29 +208,41 @@ def proc_init_view(request):
 
     tmpl_dict = {'proc_name': proc_def['name'], 'proc_def_id': proc_def_id}
     tmpl_dict['task_form'] = task_form
-    tmpl_dict['task_template'] = task_tmpl
 
-    return render(request, 'moldslist/proc_init.html', tmpl_dict)
+    return render(request, task_tmpl, tmpl_dict)
 
-# @login_required()
-# def proc_control(request):
-#     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
-#
-#     proc_def_id = request.GET['id']
-#     proc_def = rest_client.get_proc_definition(proc_def_id)
-#
-#     tmpl_dict = {'proc_name': proc_def['name']}
-#
-#     if request.GET['action'] == 'init':
-#
-#         tmpl_dict['form_template'] = proc_def['key'] + '.html'
-#
-#         return render(request, 'moldslist/proc_init.html', tmpl_dict)
-#
-#     if request.GET['action'] == 'start':
-#         #start
-#         return HttpResponseRedirect(reverse('moldslist:dashboard'))
+@login_required()
+def proc_control(request):
+    rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
 
+
+    #proc_instnc = rest_client.get_proc_instance(proc_instnc_id)
+
+    if request.method == "POST":
+        proc_instnc_id = request.POST['id']
+        if request.POST['action'] == 'resume':
+            rest_client.activate_proc(proc_instnc_id)
+            return HttpResponseRedirect(reverse('moldslist:process-control'))
+        elif request.POST['action'] == 'suspend':
+            rest_client.suspend_proc(proc_instnc_id)
+            return HttpResponseRedirect(reverse('moldslist:process-control'))
+        elif request.POST['action'] == 'delete':
+            rest_client.delete_proc(proc_instnc_id)
+            return HttpResponseRedirect(reverse('moldslist:process-control'))
+
+
+    #elif request.REQUEST['action'] == 'change_variables':
+    #    pass
+
+    active_molds_proc_table = get_proc_table(rest_client)
+    suspended_molds_proc_table = reversed(get_proc_table(rest_client, status='suspended'))
+
+    tmpl_dict = {
+        'active_molds_proc_table': active_molds_proc_table,
+        'suspended_molds_proc_table': suspended_molds_proc_table,
+        }
+
+    return render(request, 'moldslist/proc_control.html', tmpl_dict)
 
 #TODO maybe refactor the same parts, put in class, make all login, etc
 @login_required()
@@ -212,6 +253,6 @@ def proc_xml(request):
     proc_def_id = request.GET['id']
     proc_xml = rest_client.get_proc_xml(proc_def_id)
 
-    return HttpResponse(proc_xml, content_type="text/plain")
+    return HttpResponse(proc_xml, content_type="text/plain; charset=utf-8")
 
 

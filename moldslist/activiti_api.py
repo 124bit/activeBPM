@@ -38,20 +38,22 @@ class ActivityREST():
         proc_instnc_req = self.session.get(self.proc_instances_url + '/' + instnc_id)
         return proc_instnc_req.json()
 
-    def get_proc_instances(self, category=None, suspended=None, include_proc_vars=True):
+    def get_proc_instances(self, category=None, suspended_instnc=None, suspended_def=None, include_proc_vars=True):
         proc_defs_query = {}
         if category:
             proc_defs_query['category'] = category
-        if suspended:
-            proc_defs_query['suspended'] = suspended
+        if suspended_def == False or suspended_def == True:
+            proc_defs_query['suspended'] = suspended_def
+
 
         proc_defs = self.get_proc_definitions(**proc_defs_query)
         proc_defs_ids = [proc['id'] for proc in proc_defs]
 
         proc_category_instncs = []
         for id in proc_defs_ids:
-
             proc_defs_instncs_query = {'processDefinitionId': id, 'includeProcessVariables': include_proc_vars}
+            if suspended_instnc == False or suspended_instnc == True:
+                proc_defs_instncs_query['suspended'] = suspended_instnc
             proc_defs_instncs_req = self.session.get(self.proc_instances_url, params=proc_defs_instncs_query)
             proc_def_instncs = proc_defs_instncs_req.json()['data']
             proc_category_instncs += proc_def_instncs
@@ -65,6 +67,20 @@ class ActivityREST():
         proc_start_req = self.session.post(self.proc_instances_url, data=POST_args)
         return proc_start_req.json()
 
+    def activate_proc(self, proc_instnc_id):
+        PUT_args = json.dumps({'action': 'activate'})
+        proc_activate_req = self.session.put(self.proc_instances_url + '/' + proc_instnc_id, data=PUT_args)
+
+    def suspend_proc(self, proc_instnc_id):
+        PUT_args = json.dumps({'action': 'suspend'})
+        proc_suspend_req = self.session.put(self.proc_instances_url + '/' + proc_instnc_id, data=PUT_args)
+        return 1
+
+    def delete_proc(self, proc_instnc_id):
+        proc_delete_req = self.session.delete(self.proc_instances_url + '/' + proc_instnc_id)
+
+
+
     def create_proc_vars(self, instnc_id, proc_vars):
         var_list = []
         for name, value in proc_vars.items():
@@ -77,12 +93,12 @@ class ActivityREST():
         proc_instnc_req = self.session.get(self.historic_proc_instances_url + '/' + instnc_id)
         return proc_instnc_req.json()
 
-    def get_historic_proc_instances(self, category=None, suspended=None, include_proc_vars=True, finished=True):
+    def get_historic_proc_instances(self, category=None, suspended_def=None, include_proc_vars=True, finished=True):
         proc_defs_query = {}
         if category:
             proc_defs_query['category'] = category
-        if suspended:
-            proc_defs_query['suspended'] = suspended
+        if suspended_def == False or suspended_def == True:
+            proc_defs_query['suspended'] = suspended_def
 
         proc_defs = self.get_proc_definitions(**proc_defs_query)
         proc_defs_ids = [proc['id'] for proc in proc_defs]

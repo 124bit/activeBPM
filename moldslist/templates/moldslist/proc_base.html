@@ -8,7 +8,7 @@
                 <div class="panel-heading">
                     {% block heading %}
                         <h3> Процесс: <i>{{ proc_name }}</i></h3>
-                        <h5> Форма: <i>{{ mold_name }} {{ mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if proc_is_active %}активен{% else %}закончен{% endif %}</i></h5>
+                        <h5> Форма: <i>{{ mold_name }} {{ mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if proc_status == 'active' %}активен{% elif proc_status == 'suspended' %}приостановлен{% elif proc_status == 'finished' %}окончен{% endif %}</i></h5>
                         {% if proc_help_text %}<p> {{ proc_help_text }} </p>{% endif %}
                     {% endblock %}
                 </div>
@@ -26,7 +26,7 @@
 
                             function importXML(xml) {
 
-                                bpmnViewer.importXML(xml, function(err) {
+                                bpmnViewer.importXML(decodeURIComponent(escape(xml)), function(err) {
 
                                 if (err) {
                                     return console.error('could not import BPMN 2.0 diagram', err);
@@ -36,8 +36,25 @@
                                 var overlays = bpmnViewer.get('overlays');
 
                                 canvas.zoom('fit-viewport');
-                                show_current_tasks();
-                                show_assignee_task();
+                                $(document).ready( function () {
+                                    if (typeof show_assignee_task == 'function') {
+                                        show_assignee_task();
+                                    };
+
+                                    if (typeof show_current_tasks == 'function') {
+                                        show_current_tasks();
+                                    };
+
+                                    if (typeof show_init_task == 'function') {
+                                        show_init_task();
+                                    };
+
+                                    if (typeof show_end_task == 'function') {
+                                        show_end_task();
+                                    };
+                                })
+
+
                                 });
 
 
@@ -59,7 +76,7 @@
     {% endblock %}
 
     {% block process_status %}
-        {% if proc_is_active %}
+        {% if proc_status == 'active' or proc_status == 'suspended' %}
             <div class="row">
                 <div class='col-md-12'>
                     <div class="panel panel-default">
@@ -91,6 +108,16 @@
                                 .attr('fill-opacity','0.5');
                     }
                 }
+            </script>
+        {% endif %}
+
+        {% if proc_status == 'finished' %}
+            <script>
+               var show_end_task = function  () {
+                            $('g[data-element-id="end_event"]').find('.djs-outline').attr('stroke', 'Maroon');
+                            $('g[data-element-id="end_event"]').find('.djs-outline').attr('stroke-dasharray', '5,5');
+                            $('g[data-element-id="end_event"]').find('.djs-visual circle').attr('fill', '#FFFF00')
+                        }
             </script>
         {% endif %}
 

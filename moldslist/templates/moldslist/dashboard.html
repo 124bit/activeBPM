@@ -43,7 +43,7 @@
                       <span class="list-group-item">
                         <a href="{% url 'moldslist:process-init' %}?id={{ proc.id }}" ><button class="btn  btn-success btn-xs pull-right"> начать </button></a>
                         <h5 class="list-group-item-heading">{{ proc.name }}</h5>
-                        <p class="list-group-item-text">{{ proc.documentation }}</p>
+                        <p class="list-group-item-text"><small>{{ proc.description }}</small></p>
                       </span>
 
                 {% endfor %}
@@ -59,21 +59,21 @@
             <div class="panel-heading">Активные процессы</div>
             <table class="table">
                 <tr>
-                    <th>Форма</th>
                     <th>Процесс</th>
+                    <th>Форма</th>
                     <th>Задание (исполнитель)</th>
                     <th>Получено</th>
                 </tr>
                 {% for proc in active_molds_proc_table %}
                     <tr>
-
                         <td>
-                            <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.mold_number }} {{ proc.mold_name }}</a>
+                            <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.name }}</a>
                         </td>
 
                         <td>
-                            {{ proc.name }}
+                            {{ proc.mold_number }} {{ proc.mold_name }}
                         </td>
+
                         <td>
                             {% for task in proc.tasks %}
                                 {{ task.name }} ({{ task.assignee }})
@@ -102,8 +102,8 @@
             <div class="panel-heading">Последние законченные процессы</div>
             <table class="table">
                 <tr>
-                    <th>Форма</th>
                     <th>Процесс</th>
+                    <th>Форма</th>
                     <th>Длительность</th>
                     <th>Закончен</th>
                 </tr>
@@ -111,11 +111,11 @@
                     {%  if forloop.counter < 5 %}
                         <tr>
                             <td>
-                                <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.mold_number }} {{ proc.mold_name }}</a>
+                                <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.name }}</a>
                             </td>
 
                             <td>
-                                {{ proc.name }}
+                                {{ proc.mold_number }} {{ proc.mold_name }}
                             </td>
 
                             <td>
