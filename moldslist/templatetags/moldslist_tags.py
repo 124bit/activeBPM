@@ -45,7 +45,7 @@ def format_delta(delta):
 
 
 @register.filter
-def add_attributes(field, css):
+def add_attrs(field, css):
     attrs = {}
     definition = css.split(',')
 

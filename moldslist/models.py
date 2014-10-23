@@ -16,3 +16,15 @@ class BPMSUser(models.Model):
         verbose_name = _('BPMS User')
         verbose_name_plural = _('BPMS Users')
         ordering = ['login']
+
+class TaskFile(models.Model):
+    file = models.FileField(upload_to='comments_files/%f%d%m%y/')
+    key = models.CharField(max_length=200)
+
+
+from django.db.models.signals import pre_delete
+from django.dispatch.dispatcher import receiver
+
+@receiver(pre_delete, sender=TaskFile)
+def mymodel_delete(sender, instance, **kwargs):
+    instance.file.delete(False)

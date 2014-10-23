@@ -8,27 +8,61 @@
                 <div class="panel-heading">
                     {% block task_heading %}
                         <h3> Задача: <i>{{ task_name }}</i></h3>
+                        <h5> Форма: <i>{{ mold_name }} {{ mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if task_status == 'assigned' %}взято в работу {{ task_assignee }}&nbsp;&nbsp;&nbsp;{% elif task_status == 'unassigned' %}Назначено группе {{ task_groups.0|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task_status == 'finished' %}окончено {{ task_assignee }}{% endif %}</i>
+                        {% if task_status == 'assigned' %}
+                            <form action="{% url 'moldslist:task-control' %}" method="post" id='unassign_{{ request.GET.task }}' style="display:none;">
+                                {% csrf_token %}
+                                <input type="hidden" name="task_id" value="{{ request.GET.task }}"/>
+                                <input type="hidden" name="action" value="unassign"/>
+                            </form>
+                            <div class="btn-group btn-group-xs">
+                                <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ request.GET.task }}').submit();">Отказаться</button>
+                            </div>
+                        {%  elif task_status == 'unassigned' %}
+                            <form action="{% url 'moldslist:task-control' %}" method="post" id='assign_{{ request.GET.task }}' style="display:none;">
+                                {% csrf_token %}
+                                <input type="hidden" name="proc_id" value="{{ request.GET.proc }}"/>
+                                <input type="hidden" name="task_id" value="{{ request.GET.task }}"/>
+                                <input type="hidden" name="action" value="assign"/>
+                            </form>
+                            <div class="btn-group btn-group-xs">
+                                <button class="btn btn-success" type="button" onclick="$('#assign_{{ request.GET.task }}').submit();">начать</button>
+                            </div>
+                        {%  endif %}
+                        </h5>
                         {% if task_help_text %}<p> {{ task_help_text }} </p> {% endif %}
                     {% endblock %}
                 </div>
                 <div class="panel-body">
                     {% block task_body %}
-                        <form role="form" action="{% url 'moldslist:process-task' %}?proc={{ request.GET.proc }}&task={{ request.GET.task }}" method="post">
+                        <form  role="form" {% block form_attrs %}action="{% url 'moldslist:process-task' %}?proc={{ request.GET.proc }}&task={{ request.GET.task }}" method="post"{% endblock %}>
                             {{ form.non_field_errors }}
-                            {% block task_form_insides %}
-                                {% for field in task_form  %}
-                                    <div class="form-group">
-                                        {{ field.label_tag }}
-                                        {{ field|add_attributes:'class:form-control' }}
+                            {% block form_insides %}
+                                {% block form_fields %}
+                                    <div class="row">
+                                        <div class='col-md-7'>
+                                            {% for field in task_form  %}
+                                                <div class="form-group">
+                                                    {{ field.label_tag }}
+                                                    {{ field|add_attrs:'class:form-control' }}
+                                                    <span class="help-block">{{ field.errors }}</span>
+                                                    <span class="help-block">{{ field.help_text }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
-                                {% endfor %}
+                                {% endblock %}
+                                {% block submit_button %}
+                                    <div class="row">
+                                        <div class='col-md-12'>
+                                            <button class="btn btn-default" type="submit" />Завершить задачу</button>
+                                        </div>
+                                    </div>
+                                {% endblock %}
                             {% endblock %}
                             {% csrf_token %}
                             <input type="hidden" name="proc" value='{{ request.GET.proc }}' />
                             <input type="hidden" name="task" value='{{ request.GET.task }}' />
-                            {% block submit_button %}
-                                <button class="btn btn-default" type="submit" />Завершить задачу</button>
-                            {% endblock %}
                         </form>
                     {% endblock %}
                 </div>
@@ -41,4 +75,9 @@
                 $('g[data-element-id="' + '{{ task_def_key }}' + '"]').find('.djs-outline').attr('stroke-dasharray', '5,5');
             }
     </script>
+{% endblock %}
+{% block active_tasks %}
+    {% if active_tasks|length > 1 %}
+        {{ block.super }}
+    {%  endif %}
 {% endblock %}

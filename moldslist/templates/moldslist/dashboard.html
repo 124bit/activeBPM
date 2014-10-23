@@ -12,6 +12,7 @@
                     <th>Форма</th>
                     <th>Процесс</th>
                     <th>Получено</th>
+                    <th></th>
                 </tr>
                 {% for proc in assignee_task_table %}
                     <tr>
@@ -25,7 +26,31 @@
                             {{ proc.name }}
                         </td>
                         <td>
-                            {{  proc.task.assigment_time|format_date:"%d %b %H:%M" }}
+                            {{  proc.task.create_time|format_date:"%d %b %H:%M" }}
+                        </td>
+                        <td>
+                            {% if proc.task.assignee %}
+                                <form action="{% url 'moldslist:task-control' %}" method="post" id='unassign_{{ proc.task.id }}' style="display:none;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="task_id" value="{{ proc.task.id }}"/>
+                                    <input type="hidden" name="action" value="unassign"/>
+                                </form>
+                                <div class="btn-group btn-group-sm">
+
+                                    <button class="btn btn-success" type="button" onclick="window.location = '{% url 'moldslist:process-task' %}?proc={{ proc.id }}&task={{ proc.task.id }}';">Продолжить</button>
+                                    <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ proc.task.id }}').submit();">Отказаться</button>
+                                </div>
+                            {%  else %}
+                                <form action="{% url 'moldslist:task-control' %}" method="post" id='assign_{{ proc.task.id }}' style="display:none;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="proc_id" value="{{ proc.id }}"/>
+                                    <input type="hidden" name="task_id" value="{{ proc.task.id }}"/>
+                                    <input type="hidden" name="action" value="assign"/>
+                                </form>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-success" type="button" onclick="$('#assign_{{ proc.task.id }}').submit();">начать</button>
+                                </div>
+                            {%  endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -61,8 +86,9 @@
                 <tr>
                     <th>Процесс</th>
                     <th>Форма</th>
-                    <th>Задание (исполнитель)</th>
+                    <th>Задание</th>
                     <th>Получено</th>
+                    <th>Взято в работу</th>
                 </tr>
                 {% for proc in active_molds_proc_table %}
                     <tr>
@@ -76,7 +102,16 @@
 
                         <td>
                             {% for task in proc.tasks %}
-                                {{ task.name }} ({{ task.assignee }})
+                                {{ task.name }}
+                                {% if task.assignee %}
+                                    (взято {{ task.assignee }})
+                                {% else %}
+                                    (назначено {% for group in task.groups %}
+                                        {{ group|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
+                                {%  endif %}
+
+
+
                                 {% if not forloop.last %}
                                     <br>
                                 {% endif %}
@@ -84,12 +119,22 @@
                         </td>
                         <td>
                             {% for task in proc.tasks %}
-                                {{ task.assigment_time|format_date:"%d %b %H:%M" }}
+                                {{ task.create_time|format_date:"%d %b %H:%M" }}
                                 {% if not forloop.last %}
                                     <br>
                                 {% endif %}
                             {% endfor %}
                         </td>
+                        <td>
+                            {% for task in proc.tasks %}
+
+                                {% if task.assignee  and task.assignment_time %}{{ task.assignment_time|format_date:"%d %b %H:%M" }}{% endif %}
+                                {% if not forloop.last %}
+                                    <br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+
                     </tr>
                 {% endfor %}
             </table>

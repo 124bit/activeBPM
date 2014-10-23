@@ -4,18 +4,17 @@
 
 {% block heading %}
     <h2> Запуск процесса: {{ proc_name }}</h2>
-
-
-
-
     <script>
        var show_init_task = function  () {
                     $('g[data-element-id="start_event"]').find('.djs-outline').attr('stroke', 'Maroon');
                     $('g[data-element-id="start_event"]').find('.djs-outline').attr('stroke-dasharray', '5,5');
                     $('g[data-element-id="start_event"]').find('.djs-visual circle').attr('fill', '#FFFF00')
                 }
-
     </script>
+{% endblock %}
+
+{% block task_heading %}
+    <h3> Заполните поля</h3>
 {% endblock %}
 
 {% block process_status %}

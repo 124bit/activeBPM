@@ -1,0 +1,124 @@
+{% extends 'moldslist/proc_task.html' %}
+{% load i18n %}
+
+
+
+
+
+
+
+
+{% block form_fields %}
+    <div class="row">
+        <div class="col-md-7">
+            <div class="form-group">
+                <label for="id_task_comment">Комментарий (обязателен):</label>
+                <textarea id="id_task_comment" class="form-control" rows="5" name="task_comment" cols="40" required>Утверждаю, со всем согласен.</textarea>
+                <span class="help-block">{{ task_form.task_comment.errors }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 form-group">
+            <label for="task_comment_files">Файлы комментария:</label>
+            <span class="btn btn-default fileinput-button">
+                <i class="glyphicon glyphicon-plus"></i>
+                <span>Выберите файлы</span>
+                <input id="task_comment_files" type="file" name="files[]" data-url="{% url "moldslist:file-control" %}" multiple>
+             </span>
+        </div>
+        <div class="col-md-3" style="margin-top:26px;">
+            <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <div id="task_comment_file_progress" class="progress">
+                    <div class="progress-bar progress-bar-success"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="task_files" class="col-md-5">
+
+        </div>
+    </div>
+
+    <script>
+
+        function get_task_files() {
+            $.post('{% url "moldslist:file-control" %}', {task: '{{ request.GET.task }}', proc: '{{ request.GET.proc }}', action: 'get_task_comment_files_descr', csrfmiddlewaretoken: '{{ csrf_token }}'}, function (data) {
+
+                            $('#task_files').html('');
+                        for (i in data)
+                        {
+
+                            href_str = ' href="{% url "moldslist:file-control" %}?pk=' +data[i][0] + '"'
+                            //alert(href_str)
+                            $('#task_files').append(
+  '<p><a' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i][1]+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_task_file('+data[i][0]+')" ></span></p>'
+
+
+
+                            );
+                        }
+                    } );
+        }
+
+
+        var delete_task_file = function(pk)
+        {
+            $.post('{% url "moldslist:file-control" %}', {task: '{{ request.GET.task }}', proc: '{{ request.GET.proc }}', action: 'delete_task_file', pk: pk, csrfmiddlewaretoken: '{{ csrf_token }}'}, function (data) {});
+            get_task_files();
+
+        }
+
+        $(document).ready(function() {get_task_files()});
+
+        $(function () {
+            $('#task_comment_files').fileupload({
+                formData: {task: '{{ request.GET.task }}', proc: '{{ request.GET.proc }}', action: 'upload_comment_file', csrfmiddlewaretoken: '{{ csrf_token }}'},
+                autoUpload: true,
+                done: function (e, data) {
+
+                    $('#task_comment_file_progress .progress-bar').css(
+                        'width',
+                        '0%'
+                    );
+                    get_task_files();
+                },
+                progressall: function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#task_comment_file_progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                    );
+
+                }
+
+            });
+        });
+    </script>
+{%  endblock %}
+
+
+
+
+
+{#{% block form_insides %}#}
+{#        <div class='col-md-7'>#}
+{#            {% for field in task_form  %}#}
+{#                <div class="form-group">#}
+{#                    {{ field.label_tag }}#}
+{#                    {{ field|add_attrs:'class:form-control' }}#}
+{#                    <span class="help-block">{{ field.errors }}</span>#}
+{#                    <span class="help-block">{{ field.help_text }}</span>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{# #}
+{#        <div class='col-md-12'>#}
+{#            <button class="btn btn-default" type="submit" />Завершить задачу</button>#}
+{#        </div>#}
+{# #}
+{#{% endblock %}#}

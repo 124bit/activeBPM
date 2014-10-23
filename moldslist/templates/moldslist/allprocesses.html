@@ -11,8 +11,9 @@
                     <tr>
                         <th>Процесс</th>
                         <th>Форма</th>
-                        <th>Задание (исполнитель)</th>
+                        <th>Задание</th>
                         <th>Получено</th>
+                        <th>Взято в работу</th>
                     </tr>
                     {% for proc in active_molds_proc_table %}
                         <tr>
@@ -26,7 +27,16 @@
 
                             <td>
                                 {% for task in proc.tasks %}
-                                    {{ task.name }} ({{ task.assignee }})
+                                    {{ task.name }}
+                                    {% if task.assignee %}
+                                        (взято {{ task.assignee }})
+                                    {% else %}
+                                        (назначено {% for group in task.groups %}
+                                            {{ group|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
+                                    {%  endif %}
+
+
+
                                     {% if not forloop.last %}
                                         <br>
                                     {% endif %}
@@ -34,12 +44,22 @@
                             </td>
                             <td>
                                 {% for task in proc.tasks %}
-                                    {{ task.assigment_time|format_date:"%d %b %H:%M" }}
+                                    {{ task.create_time|format_date:"%d %b %H:%M" }}
                                     {% if not forloop.last %}
                                         <br>
                                     {% endif %}
                                 {% endfor %}
                             </td>
+                            <td>
+                                {% for task in proc.tasks %}
+
+                                    {% if task.assignee %}{{ task.assignment_time|format_date:"%d %b %H:%M" }}{% endif %}
+                                    {% if not forloop.last %}
+                                        <br>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+
                         </tr>
                     {% endfor %}
                 </table>
@@ -54,8 +74,9 @@
                     <tr>
                         <th>Процесс</th>
                         <th>Форма</th>
-                        <th>Задание (исполнитель)</th>
+                        <th>Задание</th>
                         <th>Получено</th>
+                        <th>Взято в работу</th>
                     </tr>
                     {% for proc in suspended_molds_proc_table %}
                         <tr>
@@ -69,7 +90,16 @@
 
                             <td>
                                 {% for task in proc.tasks %}
-                                    {{ task.name }} ({{ task.assignee }})
+                                    {{ task.name }}
+                                    {% if task.assignee %}
+                                        (взято {{ task.assignee }})
+                                    {% else %}
+                                        (назначено {% for group in task.groups %}
+                                            {{ group|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
+                                    {%  endif %}
+
+
+
                                     {% if not forloop.last %}
                                         <br>
                                     {% endif %}
@@ -77,12 +107,22 @@
                             </td>
                             <td>
                                 {% for task in proc.tasks %}
-                                    {{ task.assigment_time|format_date:"%d %b %H:%M" }}
+                                    {{ task.create_time|format_date:"%d %b %H:%M" }}
                                     {% if not forloop.last %}
                                         <br>
                                     {% endif %}
                                 {% endfor %}
                             </td>
+                            <td>
+                                {% for task in proc.tasks %}
+
+                                    {% if task.assignee %}{{ task.assignment_time|format_date:"%d %b %H:%M" }}{% endif %}
+                                    {% if not forloop.last %}
+                                        <br>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+
                         </tr>
                     {% endfor %}
                 </table>

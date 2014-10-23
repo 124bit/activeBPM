@@ -11,8 +11,7 @@
                     <tr>
                         <th>Процесс</th>
                         <th>Форма</th>
-                        <th>Задание (исполнитель)</th>
-                        <th>Получено</th>
+                        <th>Начало</th>
                         <th></th>
                     </tr>
                     {% for proc in active_molds_proc_table %}
@@ -26,20 +25,7 @@
                             </td>
 
                             <td>
-                                {% for task in proc.tasks %}
-                                    {{ task.name }} ({{ task.assignee }})
-                                    {% if not forloop.last %}
-                                        <br>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>
-                                {% for task in proc.tasks %}
-                                    {{ task.assigment_time|format_date:"%d %b %H:%M" }}
-                                    {% if not forloop.last %}
-                                        <br>
-                                    {% endif %}
-                                {% endfor %}
+                                {{ proc.start_time|format_date:"%H:%M %d %b %Y" }}
                             </td>
                             <td>
                                 <form action="{% url 'moldslist:process-control' %}" method="post" id='stop_{{ proc.id }}' style="display:none;">
@@ -74,8 +60,7 @@
                     <tr>
                         <th>Процесс</th>
                         <th>Форма</th>
-                        <th>Задание (исполнитель)</th>
-                        <th>Получено</th>
+                        <th>Начало</th>
                         <th></th>
                     </tr>
                     {% for proc in suspended_molds_proc_table %}
@@ -89,20 +74,7 @@
                             </td>
 
                             <td>
-                                {% for task in proc.tasks %}
-                                    {{ task.name }} ({{ task.assignee }})
-                                    {% if not forloop.last %}
-                                        <br>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
-                            <td>
-                                {% for task in proc.tasks %}
-                                    {{ task.assigment_time|format_date:"%d %b %H:%M" }}
-                                    {% if not forloop.last %}
-                                        <br>
-                                    {% endif %}
-                                {% endfor %}
+
                             </td>
                             <td>
                                <form action="{% url 'moldslist:process-control' %}" method="post" id='resume_{{ proc.id }}' style="display:none;">
@@ -110,15 +82,13 @@
                                     <input type="hidden" name="id" value="{{ proc.id }}"/>
                                     <input type="hidden" name="action" value="resume"/>
                                </form>
-
                                <form action="{% url 'moldslist:process-control' %}" method="post" id='delete_{{ proc.id }}' style="display:none;">
                                     {% csrf_token %}
                                     <input type="hidden" name="id" value="{{ proc.id }}"/>
                                     <input type="hidden" name="action" value="delete"/>
                                </form>
+
                                <div class="btn-group btn-group-sm">
-
-
                                     <button class="btn btn-success" type="button" onclick="$('#resume_{{ proc.id }}').submit();">Продолжить&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
                                     <button class="btn btn-danger" type="button" onclick="$('#delete_{{ proc.id }}').submit();">Удалить</button>
                                 </div>

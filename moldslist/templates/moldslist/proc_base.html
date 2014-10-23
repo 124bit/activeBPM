@@ -2,6 +2,8 @@
 {%  load moldslist_tags %}
 
 {% block middle %}
+    {% block task %}
+    {% endblock %}
     <div class = 'row'>
         <div class='col-md-12'>
             <div class="panel panel-default">
@@ -72,33 +74,43 @@
             </div>
         </div>
     </div>
-    {% block task %}
-    {% endblock %}
+
 
     {% block process_status %}
+
         {% if proc_status == 'active' or proc_status == 'suspended' %}
-            <div class="row">
-                <div class='col-md-12'>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Активные задачи</div>
-                        <table class="table">
-                            <tr>
-                                <th>Задача</th>
-                                <th>Исполнитель</th>
-                                <th>Назначено</th>
-                            </tr>
-                            {% for task in active_tasks %}
-                             <tr>
-                                <td>{{ task.name }}</td>
-                                <td>{{ task.assignee }}</td>
-                                <td>{{ task.createTime|format_date:"%d %b %H:%M" }}</td>
-                             </tr>
-                            {% endfor %}
-                        </table>
+            {% block active_tasks %}
+                <div class="row">
+                    <div class='col-md-12'>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Активные задачи</div>
+                            <table class="table">
+                                <tr>
+                                    <th>Задача</th>
+                                    <th>Исполнитель</th>
+                                    <th>Получено</th>
+                                    <th>Взято в работу</th>
+                                </tr>
+                                {% for task in active_tasks %}
+                                 <tr>
+                                    <td>{{ task.name }}</td>
+                                    <td>
+                                        {% if task.assignee %}
+                                            {{ task.assignee }}
+                                        {% else %}
+                                    назначено {% for group in task.groups %}
+                                        {{ group|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %}, в роботу не принято
+                                {%  endif %}
+                                    </td>
+                                    <td>{{ task.createTime|format_date:"%d %b %H:%M"}}</td>
+                                    <td>{% if task.assignee and task.assignment_time %}{{ task.assignment_time|format_date:"%d %b %H:%M" }}{% endif %}</td>
+                                 </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
-
+            {%  endblock %}
 
             <script>
                 var show_current_tasks = function  () {
@@ -132,6 +144,8 @@
                                     <th>Исполнитель</th>
                                     <th>Длительность</th>
                                     <th>Закончено</th>
+                                    <th>Комментарий</th>
+                                    <th></th>
                                 </tr>
                                 {% for task in finished_tasks %}
                                     <tr>
@@ -139,7 +153,39 @@
                                         <td>{{ task.assignee }}</td>
                                         <td>{{ task.time_spend|format_delta }}</td>
                                         <td>{{ task.endTime|format_date:"%H:%M %d %b %Y" }}</td>
+                                        <td>{{ task.task_comment }}</td>
+                                        <td id='files_{{ task.id }}'></td>
                                     </tr>
+
+
+                                    <script>
+
+
+
+
+
+
+                                            $.post('{% url "moldslist:file-control" %}', {task: '{{ task.id }}', proc: '{{ request.GET.id }}', action: 'get_task_comment_files_descr', csrfmiddlewaretoken: '{{ csrf_token }}'}, function (data) {
+
+                                                        for (i in data)
+                                                        {
+
+                                                            href_str = ' href="{% url "moldslist:file-control" %}?pk=' +data[i][0] + '"'
+                                                            //alert(href_str)
+                                                            $('#files_{{ task.id }}').append(
+                                  '<p><a' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i][1]+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_task_file('+data[i][0]+')" ></span></p>'
+
+
+
+                                                            );
+                                                        }
+                                                    } );
+
+
+
+
+
+                                    </script>
                                 {% endfor %}
                             </table>
 

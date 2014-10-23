@@ -10,6 +10,8 @@ moldslist_patterns = patterns('',
     url(r'^process-task$', views.proc_task_view, name='process-task'),
     url(r'^all-processes$', views.allprocesses, name='all-processes'),
     url(r'^process-control$', views.proc_control, name='process-control'),
+    url(r'^task-control$', views.task_control, name='task-control'),
+    url(r'^file-control$', views.file_control, name='file-control'),
 
     url(r'^process-xml$', views.proc_xml, name='process-xml'),
 

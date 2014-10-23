@@ -1,0 +1,17 @@
+{% extends 'moldslist/proc_init.html' %}
+{% load moldslist_tags %}
+
+{% block form_attrs %}class="form-inline" action="{% url 'moldslist:process-init' %}?id={{ request.GET.id }}" method="post"{% endblock %}
+
+{% block form_insides %}
+        <div class="form-group" style="width: 185px;">
+            <div class="input-group">
+                <div class="input-group-addon">№</div>
+                <input type="number" class="form-control" name="mold_number" min="1000" max="9999" id="id_mold_number" placeholder='Номер формы' required>
+             </div>
+        </div>
+        <div class="form-group" style="margin-left: 20px;">
+                <input type="text" class="form-control" style="width:280px;" name="mold_name" maxlength="100" id="id_mold_name" placeholder='Название формы' required>
+        </div>
+        <button class="btn btn-default" style="margin-left: 45px;" type="submit" />Запустить процесс</button>
+{% endblock %}
