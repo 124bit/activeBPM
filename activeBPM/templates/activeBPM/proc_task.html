@@ -1,0 +1,161 @@
+{% extends "activeBPM/proc_base.html" %}
+{% load activeBPM_tags %}
+
+{% block task_panel %}
+    <div class = 'row'>
+        <div class='col-md-12'>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {% block task_heading %}
+                        <h3> Задача: <i>{{ task.name }}</i></h3>
+                        <h5> Форма: <i>{{ task.vars.mold_name }} {{ task.vars.mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if task.state == 'assigned' %}взято в работу {{ task.assignee }}&nbsp;&nbsp;&nbsp;{% elif task.state == 'unassigned' %}Назначено группе {{ task.groups.0.name|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task.statt == 'finished' %}окончено {{ task.assignee }}{% endif %}{% if task.suspended %}(процесс приостановлен){% endif %}</i>
+                        {% if task.state == 'assigned' and not task.suspended %}
+                            <form action="{% url 'activeBPM:task-control' %}" method="post" id='unassign_{{ task.id }}' style="display:none;">
+                                {% csrf_token %}
+                                <input type="hidden" name="task_id" value="{{ task.id }}"/>
+                                <input type="hidden" name="action" value="unassign"/>
+                            </form>
+                            <div class="btn-group btn-group-xs">
+                                <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ task.id }}').submit();">Отказаться</button>
+                            </div>
+                        {%  elif task.state == 'started' and not task.suspended %}
+                            <form action="{% url 'activeBPM:task-control' %}" method="post" id='assign_{{ task.id }}' style="display:none;">
+                                {% csrf_token %}
+                                <input type="hidden" name="instnc_id" value="{{ task.proc_instnc_id }}"/>
+                                <input type="hidden" name="task_id" value="{{ task.id }}"/>
+                                <input type="hidden" name="action" value="assign"/>
+                            </form>
+                            <div class="btn-group btn-group-xs">
+                                <button class="btn btn-success" type="button" onclick="$('#assign_{{ task.id }}').submit();">начать</button>
+                            </div>
+                        {%  endif %}
+                        </h5>
+                        {% if task.descr %}<p> {{ task.descr }} </p> {% endif %}
+                    {% endblock %}
+                </div>
+                <div class="panel-body">
+                    {% block task_body %}
+                        {% if task.state == 'assigned' and not task.suspended or not task %}
+                            <form  role="form" {% block form_attrs %}action="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}" method="post"{% endblock %}>
+                                {{ form.non_field_errors }}
+                                {% block form_insides %}
+                                    {% block form_fields %}
+                                        {% block main_form_fields %}
+                                            <div class="row">
+                                                <div class='col-md-7'>
+                                                    {% for field in task_form %}
+                                                        {% if field.name != 'task_comment' %}
+                                                            <div class="form-group">
+                                                                {{ field.label_tag }}
+                                                                {{ field|add_attrs:'class:form-control' }}
+                                                                <span class="help-block">{{ field.errors }}</span>
+                                                                <span class="help-block">{{ field.help_text }}</span>
+                                                            </div>
+                                                        {%  endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {%  endblock %}
+                                        {% block comment_fields %}
+                                            <div class="row" style="margin-top:20px;">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label for="id_task_comment">Комментарий{% if task %}(обязателен){%  endif %}:</label>
+                                                        <textarea id="id_task_comment" class="form-control" rows="5" name="task_comment" cols="40" {% if task %}required{% endif %}>{% if task %}Утверждаю, со всем согласен.{% endif %}</textarea>
+                                                        <span class="help-block">{{ task_form.task_comment.errors }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-2 form-group">
+                                                    <label for="task_comment_files">Файлы комментария:</label>
+                                                    <span class="btn btn-default fileinput-button">
+                                                        <i class="glyphicon glyphicon-plus"></i>
+                                                        <span>Выберите файлы</span>
+                                                        <input id="task_comment_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}" multiple>
+                                                     </span>
+                                                </div>
+                                                <div class="col-md-3" style="margin-top:26px;">
+                                                    <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-top:20px;">
+                                                <div class="col-md-5">
+                                                    <div id="task_comment_file_progress" class="progress">
+                                                            <div class="progress-bar progress-bar-success"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div id="task_files" class="col-md-5">
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                function get_task_files() {
+                                                    $.post('{% url "activeBPM:file-control" %}', {task_id: '{{ task.id }}', instnc_id: '{{ task.proc_instnc_id }}', action: 'get_task_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', purpose: 'comment'}, function (data) {
+
+                                                                $('#task_files').html('');
+                                                                for (var i = 0; i < data.length; i++)
+                                                                {
+                                                                    var href_str = 'href="{% url "activeBPM:file-control" %}?file_pk=' +data[i]['file_pk'] + '"';
+                                                                    $('#task_files').append(
+                                          '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['name']+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_task_file('+data[i]['file_pk']+')" ></span></p>'
+                                                                    );
+                                                                }
+                                                            } );
+                                                }
+                                                $(document).ready(function() {get_task_files()});
+
+                                                var delete_task_file = function(pk) {
+                                                    $.post('{% url "activeBPM:file-control" %}', {task_id: '{{ task.id }}', instnc_id: '{{ task.proc_instnc_id }}', action: 'delete_task_file', file_pk: pk, csrfmiddlewaretoken: '{{ csrf_token }}'}, function () {get_task_files();});
+                                                };
+
+                                                $(document).ready(function() {
+                                                    $('#task_comment_files').fileupload({
+                                                        formData: {task_id: '{{ task.id }}', instnc_id: '{{ proc.instnc_id }}', action: 'upload_task_file', purpose: 'comment', csrfmiddlewaretoken: '{{ csrf_token }}'},
+                                                        autoUpload: true,
+                                                        done: function () {
+                                                            $('#task_comment_file_progress .progress-bar').css(
+                                                                'width',
+                                                                '0%'
+                                                            );
+                                                            get_task_files();
+                                                        },
+                                                        progressall: function (e, data) {
+                                                            var progress = parseInt(data.loaded / data.total * 100, 10);
+                                                            $('#task_comment_file_progress .progress-bar').css(
+                                                                'width',
+                                                                progress + '%'
+                                                            );
+                                                        }
+                                                    });
+                                                });
+                                            </script>
+                                        {%  endblock %}
+                                    {% endblock %}
+                                    {% block submit_button %}
+                                        <div class="row" style="margin-top:20px;">
+                                            <div class='col-md-12'>
+                                                <button class="btn btn-default" type="submit">Завершить задачу</button>
+                                            </div>
+                                        </div>
+                                    {% endblock %}
+                                {% endblock %}
+                                {% csrf_token %}
+                                <input type="hidden" name="instnc_id" value='{{ task.proc_instnc_id }}' />
+                                <input type="hidden" name="task_id" value='{{ task.task_id }}' />
+                            </form>
+                        {%  endif %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block active_tasks %}
+    {% if active_tasks|length > 1 %}
+        {{ block.super }}
+    {%  endif %}
+{% endblock %}

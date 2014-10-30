@@ -1,0 +1,64 @@
+{% load staticfiles %}
+{% load activeBPM_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <!--   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+       <script type="text/javascript">
+            var jQuery_1 = $.noConflict(true);
+        </script>
+
+-->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+        <script src="{% static "activeBPM/jQuery-File-Upload/js/vendor/jquery.ui.widget.js" %}"></script>
+        <script src="{% static "activeBPM/jQuery-File-Upload/js/jquery.iframe-transport.js" %}"></script>
+        <script src="{% static "activeBPM/jQuery-File-Upload/js/jquery.fileupload.js" %}"></script>
+        <link href="{% static "activeBPM/jQuery-File-Upload/css/jquery.fileupload.css" %}" rel="stylesheet">
+
+        <script src="{% static "activeBPM/bpmnio/jquery-mousewheel/jquery.mousewheel.js" %}"></script>
+        <script src="{% static "activeBPM/bpmnio/lodash/dist/lodash.js" %}"></script>
+        <script src="{% static "activeBPM/bpmnio/sax/lib/sax.js" %}"></script>
+        <script src="{% static "activeBPM/bpmnio/Snap.svg/dist/snap.svg.js" %}"></script>
+        <script src="{% static "activeBPM/bpmnio/bpmn-js/bpmn-viewer.js" %}"></script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">-->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <title>УХП разработка форм</title>
+    </head>
+    <body>
+    <nav class="navbar navbar-default " role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" style="color: #555; margin-top: -10px;" href="{% url "activeBPM:process-dashboard" %}"><i><b>УкрХимПласт</b><br> <span style="font-size: 14px;">разработка форм</span></i></a>
+        </div>
+
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="{% active 'activeBPM:process-dashboard' %}"><a href="{% url "activeBPM:process-dashboard" %}">Главная</a></li>
+            <li class="{% active 'activeBPM:all-processes' %}"><a href="{% url "activeBPM:all-processes" %}">Все процессы</a></li>
+            <li class="{% active 'activeBPM:process-control' %}"><a href="{% url "activeBPM:process-control" %}">Управление процессами</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{% url "admin:logout" %}?next={{ request.get_full_path }}">Выйти</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+
+
+        <div class="container">
+            {% block middle %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,160 @@
+{% extends "activeBPM/base.html" %}
+{%  load activeBPM_tags %}
+
+{% block middle %}
+    {% block task_panel %}
+    {% endblock %}
+
+    {% block process_panel %}
+        <div class='row'>
+            <div class='col-md-12'>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        {% block process_heading %}
+                            <h3> Процесс: <i>{{ proc.name }}</i></h3>
+                            <h5> Форма: <i>{{ proc.vars.mold_name }} {{ proc.vars.mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if proc.state == 'active' %}активен{% elif proc.state == 'suspended' %}приостановлен{% elif proc.state == 'finished' %}окончен{% endif %}</i></h5>
+                            {% if proc.descr %}<p> {{ proc.descr }} </p>{% endif %}
+                        {% endblock %}
+                    </div>
+                    {% block process_diagram %}
+                        <div id="bp_canvas"></div>
+
+                        <script>
+                            (function(BpmnViewer, $) {
+
+                                var bpmnViewer = new BpmnViewer({
+                                    container: '#bp_canvas',
+                                    width: '100%',
+                                    height: '500px'
+                                });
+
+                                function importXML(xml) {
+
+                                    bpmnViewer.importXML(decodeURIComponent(escape(xml)), function(err) {
+
+                                    if (err) {
+                                        return console.error('could not import BPMN 2.0 diagram', err);
+                                    }
+
+                                    var canvas = bpmnViewer.get('canvas')
+                                    var overlays = bpmnViewer.get('overlays');
+
+                                    canvas.zoom('fit-viewport');
+                                    $(document).ready( function () {
+                                        if (typeof show_task == 'function') {
+                                            show_task();
+                                        };
+                                    })
+                                    });
+                                }
+
+                                $.get('{% url "activeBPM:process-xml" %}?def_id={{ proc.def_id }}', importXML);
+
+                            })(window.BpmnJS, window.jQuery);
+
+                            $('.bjs-powered-by').remove()
+                        </script>
+                        <script>
+                            var show_task = function  () {
+                                {% if proc.state == 'finished' %}
+
+                                    $('g[data-element-id="end_event"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
+                                    $('g[data-element-id="end_event"]').find('.djs-visual circle').attr('fill', '#FFFF00')
+                                {% elif not proc.state %}
+                                    $('g[data-element-id="start_event"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
+                                    $('g[data-element-id="start_event"]').find('.djs-visual circle').attr('fill', '#FFFF00')
+                                {% else %}
+                                    active_tasks = [{% for task in proc.active_tasks %}'{{ task.def_key }}', {% endfor %}]
+                                    for(var i = 0; i < active_tasks.length; i++) {
+                                        $('g[data-element-id="' + active_tasks[i] + '"]').find('.djs-visual rect').attr('fill', '#FFFF00').attr('fill-opacity','0.5');
+                                    }
+                                {% endif %}
+                                {%  if task %}
+                                    $('g[data-element-id="' + '{{ task_def_key }}' + '"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
+                                {%  endif %}
+                            }
+                        </script>
+
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+
+    {% block active_tasks %}
+        {% if proc.active_tasks %}
+            <div class="row">
+                <div class='col-md-12'>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Активные задачи</div>
+                        <table class="table">
+                            <tr>
+                                <th>Задача</th>
+                                <th>Исполнитель</th>
+                                <th>Получено</th>
+                                <th>Взято в работу</th>
+                            </tr>
+                            {% for task in proc.active_tasks %}
+                             <tr>
+                                <td>{{ task.name }}</td>
+                                <td>
+                                    {% if task.assignee %}
+                                        {{ task.assignee }}
+                                    {% else %}
+                                Назначено {% for group in task.groups %}
+                                    {{ group.name|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %}, в роботу не принято
+                            {%  endif %}
+                                </td>
+                                <td>{{ task.start_time|format_date:"%d %b %H:%M"}}</td>
+                                <td>{{ task.assign_time|format_date:"%d %b %H:%M" }}</td>
+                             </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block finished_tasks %}
+        {% if proc.finished_tasks %}
+             <div class="row">
+                    <div class='col-md-12'>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Законченные задачи</div>
+                            <table class="table">
+                                <tr>
+                                    <th>Задача</th>
+                                    <th>Исполнитель</th>
+                                    <th>Длительность</th>
+                                    <th>Закончено</th>
+                                    <th>Комментарий</th>
+                                    <th></th>
+                                </tr>
+                                {% for task in proc.finished_tasks %}
+                                    <tr>
+                                        <td>{{ task.name }}</td>
+                                        <td>{{ task.assignee }}</td>
+                                        <td>{{ task.full_time|format_delta }}</td>
+                                        <td>{{ task.end_time|format_date:"%H:%M %d %b %Y" }}</td>
+                                        <td>{{ task.vars.task_comment }}</td>
+                                        <td>
+                                            {% for file in task.comment_files %}
+                                                <p>
+                                                    <a href="{% url "activeBPM:file-control" %}?file_pk={{ file.file_pk }}">
+                                                        <span class="glyphicon glyphicon-file"></span>{{ file.name }}
+                                                    </a>
+                                                </p>
+                                            {%  endfor %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+             </div>
+        {% endif %}
+    {%  endblock %}
+
+{% endblock %}

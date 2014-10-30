@@ -1,0 +1,29 @@
+{% extends 'activeBPM/proc_init.html' %}
+{% load activeBPM_tags %}
+
+{% block form_attrs %}class="form-inline" action="{% url 'activeBPM:process-init' %}?def_id={{ proc.def_id }}" method="post"{% endblock %}
+
+{% block main_form_fields %}
+    <div class='row' style="margin-top:20px;">
+        <div class="col-md-12"><label>Номер и название формы:</label></div>
+        <div class="col-md-12">
+            <div class="form-group" style="width: 185px;">
+                <div class="input-group">
+                    <div class="input-group-addon">№</div>
+                    <input type="number" class="form-control" name="mold_number" min="1000" max="9999" id="id_mold_number" placeholder='Номер формы' required>
+                 </div>
+            </div>
+            <div class="form-group" style="margin-left: 20px;">
+                    <input type="text" class="form-control" style="width:280px;" name="mold_name" maxlength="100" id="id_mold_name" placeholder='Название формы' required>
+            </div>
+        </div>
+    </div>
+{%  endblock %}
+
+{% block submit_button %}
+    <div class="row">
+        <div class="col-md-12">
+            <button class="btn btn-default" style="margin-left: 45px;" type="submit">Запустить процесс</button>
+        </div>
+    </div>
+{% endblock %}

@@ -36,10 +36,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'moldslist',
+    'activeBPM',
+#    'silk'
 )
 
 MIDDLEWARE_CLASSES = (
+
+ #   'silk.middleware.SilkyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -104,3 +107,7 @@ from django.core.urlresolvers import reverse_lazy
 
 LOGIN_URL = reverse_lazy('admin:login')
 LOGIN_REDIRECT_URL = '/'
+
+
+#SILKY_META = True
+#SILKY_PYTHON_PROFILER = True

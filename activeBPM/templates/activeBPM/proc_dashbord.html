@@ -1,5 +1,5 @@
-{% extends "moldslist/base.html" %}
-{% load moldslist_tags %}
+{% extends "activeBPM/base.html" %}
+{% load activeBPM_tags %}
 
 {% block middle %}
 <div class="row">
@@ -14,41 +14,40 @@
                     <th>Получено</th>
                     <th></th>
                 </tr>
-                {% for proc in assignee_task_table %}
+                {% for task in assignee_task_table %}
                     <tr>
                         <td>
-                            <a href="{% url 'moldslist:process-task' %}?proc={{ proc.id }}&task={{ proc.task.id }}">{{ proc.task.name }}</a>
+                            <a href="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}">{{ task.name }}</a>
                         </td>
                         <td>
-                            {{ proc.mold_name }}
+                            {{ task.vars.mold_name }}
                         </td>
                         <td>
-                            {{ proc.name }}
+                            {{ task.proc_name }}
                         </td>
                         <td>
-                            {{  proc.task.create_time|format_date:"%d %b %H:%M" }}
+                            {{  task.start_time|format_date:"%d %b %H:%M" }}
                         </td>
                         <td>
-                            {% if proc.task.assignee %}
-                                <form action="{% url 'moldslist:task-control' %}" method="post" id='unassign_{{ proc.task.id }}' style="display:none;">
+                            {% if task.assignee %}
+                                <form action="{% url 'activeBPM:task-control' %}" method="post" id='unassign_{{ task.id }}' style="display:none;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="task_id" value="{{ proc.task.id }}"/>
+                                    <input type="hidden" name="task_id" value="{{ task.id }}"/>
                                     <input type="hidden" name="action" value="unassign"/>
                                 </form>
                                 <div class="btn-group btn-group-sm">
-
-                                    <button class="btn btn-success" type="button" onclick="window.location = '{% url 'moldslist:process-task' %}?proc={{ proc.id }}&task={{ proc.task.id }}';">Продолжить</button>
-                                    <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ proc.task.id }}').submit();">Отказаться</button>
+                                    <button class="btn btn-success" type="button" onclick="window.location = '{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}';">Продолжить</button>
+                                    <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ task.id }}').submit();">Отказаться</button>
                                 </div>
                             {%  else %}
-                                <form action="{% url 'moldslist:task-control' %}" method="post" id='assign_{{ proc.task.id }}' style="display:none;">
+                                <form action="{% url 'activeBPM:task-control' %}" method="post" id='assign_{{ task.id }}' style="display:none;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="proc_id" value="{{ proc.id }}"/>
-                                    <input type="hidden" name="task_id" value="{{ proc.task.id }}"/>
+                                    <input type="hidden" name="instnc_id" value="{{ task.proc_instnc_id }}"/>
+                                    <input type="hidden" name="task_id" value="{{ task.id }}"/>
                                     <input type="hidden" name="action" value="assign"/>
                                 </form>
                                 <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-success" type="button" onclick="$('#assign_{{ proc.task.id }}').submit();">начать</button>
+                                    <button class="btn btn-success" type="button" onclick="$('#assign_{{ task.id }}').submit();">начать</button>
                                 </div>
                             {%  endif %}
                         </td>
@@ -58,17 +57,16 @@
         </div>
     </div>
 
-
     <div class='col-md-4'>
         <div class="panel panel-default">
             <div class="panel-heading">Начать процесс</div>
             <div class="list-group">
-                {% for proc in available_proc_list %}
+                {% for proc in available_proc_table %}
 
                       <span class="list-group-item">
-                        <a href="{% url 'moldslist:process-init' %}?id={{ proc.id }}" ><button class="btn  btn-success btn-xs pull-right"> начать </button></a>
+                        <a href="{% url 'activeBPM:process-init' %}?def_id={{ proc.def_id }}" ><button class="btn  btn-success btn-xs pull-right"> начать </button></a>
                         <h5 class="list-group-item-heading">{{ proc.name }}</h5>
-                        <p class="list-group-item-text"><small>{{ proc.description }}</small></p>
+                        <p class="list-group-item-text"><small>{{ proc.descr }}</small></p>
                       </span>
 
                 {% endfor %}
@@ -87,48 +85,45 @@
                     <th>Процесс</th>
                     <th>Форма</th>
                     <th>Задание</th>
-                    <th>Получено</th>
-                    <th>Взято в работу</th>
+                    <th>Задание получено</th>
+                    <th>Задание взято в работу</th>
                 </tr>
-                {% for proc in active_molds_proc_table %}
+                {% for proc in active_proc_table %}
                     <tr>
                         <td>
-                            <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.name }}</a>
+                            <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
                         </td>
 
                         <td>
-                            {{ proc.mold_number }} {{ proc.mold_name }}
+                            {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
                         </td>
 
                         <td>
-                            {% for task in proc.tasks %}
+                            {% for task in proc.active_tasks %}
                                 {{ task.name }}
                                 {% if task.assignee %}
                                     (взято {{ task.assignee }})
                                 {% else %}
                                     (назначено {% for group in task.groups %}
-                                        {{ group|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
+                                        {{ group.name|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
                                 {%  endif %}
-
-
-
                                 {% if not forloop.last %}
                                     <br>
                                 {% endif %}
                             {% endfor %}
                         </td>
                         <td>
-                            {% for task in proc.tasks %}
-                                {{ task.create_time|format_date:"%d %b %H:%M" }}
+                            {% for task in proc.active_tasks %}
+                                {{ task.start_time|format_date:"%d %b %H:%M" }}
                                 {% if not forloop.last %}
                                     <br>
                                 {% endif %}
                             {% endfor %}
                         </td>
                         <td>
-                            {% for task in proc.tasks %}
+                            {% for task in proc.active_tasks %}
 
-                                {% if task.assignee  and task.assignment_time %}{{ task.assignment_time|format_date:"%d %b %H:%M" }}{% endif %}
+                                {{ task.assign_time|format_date:"%d %b %H:%M" }}
                                 {% if not forloop.last %}
                                     <br>
                                 {% endif %}
@@ -152,23 +147,23 @@
                     <th>Длительность</th>
                     <th>Закончен</th>
                 </tr>
-                {% for proc in finished_molds_proc_table %}
+                {% for proc in finished_proc_table %}
                     {%  if forloop.counter < 5 %}
                         <tr>
                             <td>
-                                <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.name }}</a>
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
                             </td>
 
                             <td>
-                                {{ proc.mold_number }} {{ proc.mold_name }}
+                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
                             </td>
 
                             <td>
-                                {{ proc.time_spend|format_delta }}
+                                {{ proc.full_time|format_delta }}
                             </td>
 
                             <td>
-                                {{ proc.finish_time|format_date:"%d %b %Y" }}
+                                {{ proc.end_time|format_date:"%d %b %Y" }}
                             </td>
 
 

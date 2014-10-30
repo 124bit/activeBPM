@@ -1,5 +1,5 @@
-{% extends "moldslist/base.html" %}
-{% load moldslist_tags %}
+{% extends "activeBPM/base.html" %}
+{% load activeBPM_tags %}
 
 {% block middle %}
 
@@ -14,36 +14,36 @@
                         <th>Начало</th>
                         <th></th>
                     </tr>
-                    {% for proc in active_molds_proc_table %}
+                    {% for proc in active_proc_table %}
                         <tr>
                             <td>
-                                <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.name }}</a>
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
                             </td>
 
                             <td>
-                                {{ proc.mold_number }} {{ proc.mold_name }}
+                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
                             </td>
 
                             <td>
                                 {{ proc.start_time|format_date:"%H:%M %d %b %Y" }}
                             </td>
                             <td>
-                                <form action="{% url 'moldslist:process-control' %}" method="post" id='stop_{{ proc.id }}' style="display:none;">
+                                <form action="{% url 'activeBPM:process-control' %}" method="post" id='stop_{{ proc.instnc_id }}' style="display:none;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ proc.id }}"/>
+                                    <input type="hidden" name="instnc_id" value="{{ proc.instnc_id }}"/>
                                     <input type="hidden" name="action" value="suspend"/>
                                 </form>
 
-                                <form action="{% url 'moldslist:process-control' %}" method="post" id='delete_{{ proc.id }}' style="display:none;">
+                                <form action="{% url 'activeBPM:process-control' %}" method="post" id='delete_{{ proc.instnc_id }}' style="display:none;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ proc.id }}"/>
+                                    <input type="hidden" name="instnc_id" value="{{ proc.instnc_id }}"/>
                                     <input type="hidden" name="action" value="delete"/>
                                 </form>
                                 <div class="btn-group btn-group-sm">
 
 
-                                    <button class="btn btn-warning" type="button" onclick="$('#stop_{{ proc.id }}').submit();">Приостановить</button>
-                                    <button class="btn btn-danger" type="button" onclick="$('#delete_{{ proc.id }}').submit();">Удалить</button>
+                                    <button class="btn btn-warning" type="button" onclick="$('#stop_{{ proc.instnc_id }}').submit();">Приостановить</button>
+                                    <button class="btn btn-danger" type="button" onclick="$('#delete_{{ proc.instnc_id }}').submit();">Удалить</button>
                                 </div>
                             </td>
                         </tr>
@@ -63,34 +63,34 @@
                         <th>Начало</th>
                         <th></th>
                     </tr>
-                    {% for proc in suspended_molds_proc_table %}
+                    {% for proc in suspended_proc_table %}
                         <tr>
                             <td>
-                                <a href="{% url 'moldslist:process-status' %}?id={{ proc.id }}">{{ proc.name }}</a>
+                                 <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
                             </td>
 
                             <td>
-                                {{ proc.mold_number }} {{ proc.mold_name }}
+                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
                             </td>
 
                             <td>
-
+                                {{ proc.start_time|format_date:"%H:%M %d %b %Y" }}
                             </td>
                             <td>
-                               <form action="{% url 'moldslist:process-control' %}" method="post" id='resume_{{ proc.id }}' style="display:none;">
+                               <form action="{% url 'activeBPM:process-control' %}" method="post" id='resume_{{ proc.instnc_id }}' style="display:none;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ proc.id }}"/>
+                                    <input type="hidden" name="instnc_id" value="{{ proc.instnc_id }}"/>
                                     <input type="hidden" name="action" value="resume"/>
                                </form>
-                               <form action="{% url 'moldslist:process-control' %}" method="post" id='delete_{{ proc.id }}' style="display:none;">
+                               <form action="{% url 'activeBPM:process-control' %}" method="post" id='delete_{{ proc.instnc_id }}' style="display:none;">
                                     {% csrf_token %}
-                                    <input type="hidden" name="id" value="{{ proc.id }}"/>
+                                    <input type="hidden" name="instnc_id" value="{{ proc.instnc_id }}"/>
                                     <input type="hidden" name="action" value="delete"/>
                                </form>
 
                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-success" type="button" onclick="$('#resume_{{ proc.id }}').submit();">Продолжить&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
-                                    <button class="btn btn-danger" type="button" onclick="$('#delete_{{ proc.id }}').submit();">Удалить</button>
+                                    <button class="btn btn-success" type="button" onclick="$('#resume_{{ proc.instnc_id }}').submit();">Продолжить&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                                    <button class="btn btn-danger" type="button" onclick="$('#delete_{{ proc.instnc_id }}').submit();">Удалить</button>
                                 </div>
                             </td>
                         </tr>
