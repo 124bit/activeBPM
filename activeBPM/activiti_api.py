@@ -31,6 +31,11 @@ class ActivityREST():
         self.tasks_url = self.rest_url + 'runtime/tasks'
         self.historic_tasks_url = self.rest_url + 'history/historic-task-instances'
         self.groups_url = self.rest_url + 'identity/groups'
+        self.users_url = self.rest_url + 'identity/users'
+
+    def get_user(self, user_id):
+        user_req = self.session.get(self.users_url +'/%s' % user_id)
+        return user_req.json()
 
     def get_group(self, group_id):
         group_req = self.session.get(self.groups_url + '/%s' % group_id)
@@ -42,6 +47,17 @@ class ActivityREST():
         identity_links = identity_links_req.json()
         groups_ids = [link['groupId'] for link in identity_links if link['groupId']]
         return groups_ids
+
+    def get_group_users_by_group_name(self, group_name):
+        GET_params = {'memberOfGroup': group_name}
+        members_req = self.session.get(self.users_url, params=GET_params)
+        members = members_req.json()['data']
+        return members
+
+    def get_group_userids_by_group_name(self, group_name):
+        users = self.get_group_users_by_group_name(group_name)
+        userids = [user['id'] for user in users]
+        return userids
 
     def get_group_info(self, group_id):
         props = {}
@@ -68,6 +84,15 @@ class ActivityREST():
         task = task_req.json()['data'][0]
         return task
 
+    @staticmethod
+    def get_task_files_props(task_id, proc_id, purpose):
+        task_comment_files = TaskFile.objects.filter(key=proc_id + '_' + task_id,
+                                                     purpose=purpose).order_by('pk')
+        task_comment_files_props = [{'name': ntpath.split(model.file.name)[1], 'file_pk': model.pk,
+                                     'size': model.file.size, 'purpose': model.purpose}
+                                    for model in task_comment_files]
+        return task_comment_files_props
+
     def get_task_info(self, task_id):
         props = {}
         props['id'] = task_id
@@ -77,8 +102,12 @@ class ActivityREST():
         props['descr'] = historic_task['description']
         props['groups'] = self.get_groups_info_by_task_id(props['id'])
         props['assignee'] = historic_task['assignee']
+        props['parent_task_id'] = historic_task['parentTaskId']
         props['start_time'] = self.date_adapt(historic_task['startTime'])
-        props['assign_time'] = self.date_adapt(historic_task['claimTime'])
+        if historic_task['claimTime']:
+            props['assign_time'] = self.date_adapt(historic_task['claimTime'])
+        else:
+            props['assign_time'] = props['start_time']
         props['end_time'] = self.date_adapt(historic_task['endTime'])
         if props['assignee']:
             props['wait_time'] = props['assign_time'] - props['start_time']
@@ -107,12 +136,7 @@ class ActivityREST():
             task = self.get_task(props['id'])
             props['suspended'] = task['suspended']
         props['vars'] = self.rest_vars_to_dict(historic_task['variables'])
-        task_comment_files = TaskFile.objects.filter(key=props['proc_instnc_id'] + '_' + props['id'],
-                                                     purpose='comment').order_by('pk')
-        task_comment_files_props = [{'name': ntpath.split(model.file.name)[1], 'file_pk': model.pk,
-                                     'size': model.file.size, 'purpose': model.purpose}
-                                    for model in task_comment_files]
-        props['comment_files'] = task_comment_files_props
+        props['comment_files'] = self.get_task_files_props(props['id'], props['proc_instnc_id'], 'comment')
         #change if problem with performance
         proc_def = self.get_proc_def(props['proc_def_id'])
         props['proc_name'] = proc_def['name']
@@ -130,27 +154,19 @@ class ActivityREST():
         tasks_info = [self.get_task_info(task_id) for task_id in task_ids]
         return tasks_info
 
-    def get_candidate_tasks_ids(self, candidate_user, only_active=True):
-        GET_args = {'candidateUser': candidate_user, 'active': only_active}
+    def get_tasks_ids(self, assignee=None, candidate_user=None, only_active=True):
+        GET_args = {'active': only_active}
+        if candidate_user:
+            GET_args['candidateUser'] = candidate_user
+        if assignee:
+            GET_args['assignee'] = assignee
         tasks_req = self.session.get(self.tasks_url, params=GET_args)
         tasks = tasks_req.json()['data']
         tasks_ids = [task['id'] for task in tasks]
         return tasks_ids
 
-    def get_candidate_tasks_info(self, candidate_user, only_active=True):
-        tasks_ids = self.get_candidate_tasks_ids(candidate_user, only_active)
-        tasks_info = [self.get_task_info(task_id) for task_id in tasks_ids]
-        return tasks_info
-
-    def get_user_tasks_ids(self, assignee, only_active=True):
-        GET_args = {'assignee': assignee, 'active': only_active}
-        tasks_req = self.session.get(self.tasks_url, params=GET_args)
-        tasks = tasks_req.json()['data']
-        tasks_ids = [task['id'] for task in tasks]
-        return tasks_ids
-
-    def get_user_tasks_info(self, assignee, only_active=True):
-        tasks_ids = self.get_user_tasks_ids(assignee, only_active)
+    def get_tasks_info(self, assignee=None, candidate_user=None, only_active=True):
+        tasks_ids = self.get_tasks_ids(assignee=assignee, candidate_user=candidate_user, only_active=only_active)
         tasks_info = [self.get_task_info(task_id) for task_id in tasks_ids]
         return tasks_info
 
@@ -264,8 +280,20 @@ class ActivityREST():
             else:
                 props['state'] = 'active'
         props.update(self.get_proc_def_info(props['def_id']))
+
+        init_task = {'id': props['instnc_id'] + '_init',  #maybe put in get tasks
+                     'name': 'Начало процесса',
+                     'start_time': None,
+                     'end_time': props['start_time'],
+                     'assign_time': None,
+                     'work_time': None,
+                     'full_time': None,
+                     'assignee': props['initiator'],
+                     'vars': {'task_comment': props['vars']['task_comment']},
+                     'comment_files': self.get_task_files_props('init', props['instnc_id'], 'comment')}
+
         instnc_tasks = self.get_tasks_info_by_proc_instnc_id(props['instnc_id'])
-        props['finished_tasks'] = [task for task in instnc_tasks if task['state'] == 'finished']
+        props['finished_tasks'] = [init_task] + [task for task in instnc_tasks if task['state'] == 'finished']
         props['active_tasks'] = [task for task in instnc_tasks if task['state'] != 'finished']
         return props
 
@@ -304,8 +332,11 @@ class ActivityREST():
         proc_xml = self.session.get(proc_depl_resource['contentUrl']).text
         return proc_xml
 
-    def start_proc(self, proc_defenition_id):
-        POST_args = json.dumps({'processDefinitionId': proc_defenition_id})
+    def start_proc(self, proc_defenition_id, proc_vars):
+        var_list = []
+        for name, value in proc_vars.items():
+            var_list.append({'name': name, 'value': str(value), 'type': 'string'})
+        POST_args = json.dumps({'processDefinitionId': proc_defenition_id, 'variables': var_list})
         proc_start_req = self.session.post(self.proc_instncs_url, data=POST_args)
         proc_instnc = proc_start_req.json()
         return proc_instnc

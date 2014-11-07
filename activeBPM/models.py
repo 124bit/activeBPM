@@ -9,6 +9,7 @@ from django.conf import settings
 class BPMSUser(models.Model):
     login = models.CharField(max_length=50,  verbose_name=_("BPMS user login"), unique=True)
     password = models.CharField(max_length=50,  verbose_name=_("BPMS user password"))
+    phone = models.CharField(max_length=50,  verbose_name=_("BPMS user phone"), blank=True, null=True)
     web_user = models.OneToOneField(User, blank=True, null=True, on_delete=models.SET_NULL,
                                     verbose_name=_("Web user of BPMS account"))
 

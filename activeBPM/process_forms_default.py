@@ -12,5 +12,5 @@ class TaskDefault(FormWithComment):
 
 
 class ProcessInitDefault(FormWithComment):
-    mold_number = forms.IntegerField(label='Номер формы', min_value=1000, max_value=9999)
+    mold_number = forms.IntegerField(label='Номер формы', min_value=100, max_value=9999)
     mold_name = forms.CharField(label='Имя формы', max_length=100)

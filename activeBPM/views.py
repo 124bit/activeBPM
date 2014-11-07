@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from activeBPM.models import TaskFile
 from django.template import TemplateDoesNotExist
 from activeBPM import process_forms_default
+from django.conf import settings
+import os
 import ntpath
 import json
 
@@ -17,7 +19,7 @@ task_template = template_folder + 'task.html'
 proc_init_template = template_folder + 'proc_base.html'
 category = 'Molds development'
 forms_module = process_forms_default
-#from silk.profiling.profiler import silk_profile
+folders_paths = {'molds_documentation': settings.MEDIA_ROOT + 'Dropbox/molds_documentation/'}
 
 #TODO profile
 #TODO add a web account existance check
@@ -25,7 +27,8 @@ forms_module = process_forms_default
 #TODO add right permissions to admin and other groups
 #TODO add a process sort by last state change
 #TODO localization
-#@silk_profile(name='View Blog Post')
+#from silk.profiling.profiler import silk_profile
+#@silk_profile(name='View main process list')
 @login_required()
 def proc_dashboard_view(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
@@ -34,10 +37,20 @@ def proc_dashboard_view(request):
     finished_proc_table = reversed(rest_client.get_proc_instncs_info_by_category(category,
                                                                                        def_state='active',
                                                                                        instnc_state='finished'))
-    assignee_task_table = rest_client.get_candidate_tasks_info(request.user.bpmsuser.password) + \
-                          rest_client.get_user_tasks_info(request.user.bpmsuser.password)
 
-    available_proc_table = rest_client.get_proc_defs_info_by_category(category=category, def_state='active',
+
+    admin_userids = rest_client.get_group_userids_by_group_name('admin')
+    if request.user.bpmsuser.login in admin_userids:
+        assignee_task_table = rest_client.get_tasks_info()
+    else:
+        assignee_task_table = rest_client.get_tasks_info(assignee=request.user.bpmsuser.login) + \
+            rest_client.get_tasks_info(candidate_user=request.user.bpmsuser.login)
+
+    if request.user.bpmsuser.login in admin_userids:
+        available_proc_table = rest_client.get_proc_defs_info_by_category(category=category, def_state='active',
+                                                                     latest_def=True)
+    else:
+        available_proc_table = rest_client.get_proc_defs_info_by_category(category=category, def_state='active',
                                                                      latest_def=True,
                                                                      startable_by_user=request.user.bpmsuser.login)
     tmpl_dict = {'active_proc_table': active_proc_table,
@@ -49,20 +62,23 @@ def proc_dashboard_view(request):
 
 @login_required()
 def all_proc_view(request):
-    rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
-
-    active_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-                                                                            instnc_state='active')
-    suspended_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-                                                                            instnc_state='suspended')
-    finished_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-                                                                            instnc_state='finished')
-    tmpl_dict = {
-        'active_proc_table': active_proc_table,
-        'finished_proc_table': finished_proc_table,
-        'suspended_proc_table': suspended_proc_table
-    }
-    return render(request, all_proc_template, tmpl_dict)
+    from activeBPM.tasks import new_task_sms
+    new_task_sms()
+    return HttpResponse('ok')
+    # rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
+    #
+    # active_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
+    #                                                                         instnc_state='active')
+    # suspended_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
+    #                                                                         instnc_state='suspended')
+    # finished_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
+    #                                                                         instnc_state='finished')
+    # tmpl_dict = {
+    #     'active_proc_table': active_proc_table,
+    #     'finished_proc_table': finished_proc_table,
+    #     'suspended_proc_table': suspended_proc_table
+    # }
+    # return render(request, all_proc_template, tmpl_dict)
 
 
 @login_required()
@@ -99,7 +115,7 @@ def task_view(request):
         task_form = task_form_class()
     proc_template_folder = template_folder + 'proc_templates/%s/' % proc['def_key']
     proc_task_default_template = proc_template_folder + 'task_default.html'
-    proc_task_main_default_template = 'activeBPM/proc_templates/DefaultProcess/task_default.html'
+    proc_task_main_default_template = 'activeBPM/proc_templates/default_process/task_default.html'
     task_tmpl = proc_template_folder + '%s__%s.html' % (proc['def_key'], task['def_key'])
     tmpl_dict = {'proc': proc, 'task': task, 'task_form': task_form}
     try:
@@ -110,12 +126,14 @@ def task_view(request):
         except TemplateDoesNotExist:
             return render(request, proc_task_main_default_template, tmpl_dict)
 
-
+#TODO init files loading works incorrect. Need right init behavior in process history and in file uploading
+#upload with nowtime and then update key to process instance id
 @login_required()
 def proc_init_view(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
     proc_def_id = request.GET['def_id']
     proc = rest_client.get_proc_def_info(proc_def_id)
+    init_task_id = 'init_%s_%s' % (request.user.bpmsuser.login, proc['def_key'])
     try:
         task_form_class = getattr(forms_module, '%s__%s' % (proc['def_key'], 'init'))
     except AttributeError:
@@ -127,15 +145,20 @@ def proc_init_view(request):
         task_form = task_form_class(request.POST)
         if task_form.is_valid():
             data = task_form.cleaned_data
-            proc_instnc_id = rest_client.start_proc(proc_def_id)['id']
-            rest_client.create_proc_vars(proc_instnc_id, data)
+            #data['worker'] = '124bit'
+            proc_instnc = rest_client.start_proc(proc_def_id, data)
+            proc_instnc_id = proc_instnc['id']
+            task_files = TaskFile.objects.filter(key='_' + init_task_id, purpose='comment')
+            for task_file in task_files:
+                task_file.key = proc_instnc_id + '_init'
+                task_file.save()
             return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
     else:
         task_form = task_form_class()
     proc_template_folder = template_folder + 'proc_templates/%s/' % proc['def_key']
-    default_template = 'activeBPM/proc_templates/DefaultProcess/process_init_default.html'
+    default_template = 'activeBPM/proc_templates/default_process/process_init_default.html'
     task_tmpl = proc_template_folder + '%s__%s.html' % (proc['def_key'], 'init')
-    tmpl_dict = {'proc': proc}
+    tmpl_dict = {'proc': proc, 'init_task_id': init_task_id}
     tmpl_dict['task_form'] = task_form
     try:
         return render(request, task_tmpl, tmpl_dict)
@@ -157,13 +180,23 @@ def proc_control_view(request):
         elif request.POST['action'] == 'delete':
             rest_client.delete_proc(instnc_id)
             return HttpResponseRedirect(reverse('activeBPM:process-control'))
+
     active_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-                                                                            instnc_state='active')
+                                                                                instnc_state='active')
     suspended_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-                                                                            instnc_state='suspended')
+                                                                                instnc_state='suspended')
+    admin_userids = rest_client.get_group_userids_by_group_name('admin')
+    if request.user.bpmsuser.login in admin_userids:
+        controled_active_proc_table = active_proc_table
+        controled_suspended_proc_table = suspended_proc_table
+    else:
+        controled_active_proc_table = [proc for proc in active_proc_table if proc['initiator'] == request.user.bpmsuser.login]
+        controled_suspended_proc_table = [proc for proc in suspended_proc_table if proc['initiator'] == request.user.bpmsuser.login]
+
+
     tmpl_dict = {
-        'active_proc_table': active_proc_table,
-        'suspended_proc_table': suspended_proc_table
+        'active_proc_table': controled_active_proc_table,
+        'suspended_proc_table': controled_suspended_proc_table
     }
     return render(request, template_folder + '/proc_control.html', tmpl_dict)
 
@@ -192,12 +225,17 @@ def proc_xml(request):
     return HttpResponse(proc_xml_content, content_type="text/plain; charset=utf-8")
 
 
+def handle_uploaded_file(f, path):
+    with open(path, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
 @login_required()
 def file_control(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
     if request.method == 'POST':
         task = request.POST['task_id']
-        proc = request.POST['instnc_id']
+        proc = request.POST['instnc_id'] #empty if it is init task
         action = request.POST['action']
         if action == 'upload_task_file':
             purpose = request.POST['purpose']
@@ -216,6 +254,32 @@ def file_control(request):
             file_pk = request.POST['file_pk']
             TaskFile.objects.get(pk=file_pk).delete()
             return HttpResponse('ok')
+        elif action == 'upload_file':
+            folder_shortcut = request.POST['folder_shortcut']
+            folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
+            filename = request.POST['filename']
+            file_path = folder_path + filename
+            for file in request.FILES.values():
+                handle_uploaded_file(file, file_path)
+            return HttpResponse('ok')
+        elif action == 'get_files_props':
+            folder_shortcut = request.POST['folder_shortcut']
+            folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
+            filenames = os.listdir(folder_path)
+            files_props = []
+            for filename in filenames:
+                files_props.append({'name': filename, 'size': os.path.getsize(folder_path + filename)/1024})
+            return HttpResponse(json.dumps(files_props), content_type="application/json")
+        elif action == 'delete_file':
+            folder_shortcut = request.POST['folder_shortcut']
+            folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
+            filename = request.POST['filename']
+            file_path = folder_path + filename
+            os.remove(file_path)
+            if not os.listdir(folder_path):
+                os.rmdir(folder_path)
+            return HttpResponse('ok')
+
     elif request.method == 'GET':
         file_pk = request.GET['file_pk']
         task_file = TaskFile.objects.get(pk=file_pk)

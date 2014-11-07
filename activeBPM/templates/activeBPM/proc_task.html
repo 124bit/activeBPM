@@ -93,7 +93,7 @@
 
                                             <script>
                                                 function get_task_files() {
-                                                    $.post('{% url "activeBPM:file-control" %}', {task_id: '{{ task.id }}', instnc_id: '{{ task.proc_instnc_id }}', action: 'get_task_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', purpose: 'comment'}, function (data) {
+                                                    $.post('{% url "activeBPM:file-control" %}', {task_id: '{% if task %}{{ task.id }}{% else %}{{ init_task_id }}{% endif %}', instnc_id: '{{ task.proc_instnc_id }}', action: 'get_task_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', purpose: 'comment'}, function (data) {
 
                                                                 $('#task_files').html('');
                                                                 for (var i = 0; i < data.length; i++)
@@ -108,12 +108,12 @@
                                                 $(document).ready(function() {get_task_files()});
 
                                                 var delete_task_file = function(pk) {
-                                                    $.post('{% url "activeBPM:file-control" %}', {task_id: '{{ task.id }}', instnc_id: '{{ task.proc_instnc_id }}', action: 'delete_task_file', file_pk: pk, csrfmiddlewaretoken: '{{ csrf_token }}'}, function () {get_task_files();});
+                                                    $.post('{% url "activeBPM:file-control" %}', {task_id: '{% if task %}{{ task.id }}{% else %}{{ init_task_id }}{% endif %}', instnc_id: '{{ task.proc_instnc_id }}', action: 'delete_task_file', file_pk: pk, csrfmiddlewaretoken: '{{ csrf_token }}'}, function () {get_task_files();});
                                                 };
 
                                                 $(document).ready(function() {
                                                     $('#task_comment_files').fileupload({
-                                                        formData: {task_id: '{{ task.id }}', instnc_id: '{{ proc.instnc_id }}', action: 'upload_task_file', purpose: 'comment', csrfmiddlewaretoken: '{{ csrf_token }}'},
+                                                        formData: {task_id: '{% if task %}{{ task.id }}{% else %}{{ init_task_id }}{% endif %}', instnc_id: '{{ proc.instnc_id }}', action: 'upload_task_file', purpose: 'comment', csrfmiddlewaretoken: '{{ csrf_token }}'},
                                                         autoUpload: true,
                                                         done: function () {
                                                             $('#task_comment_file_progress .progress-bar').css(

@@ -122,8 +122,11 @@
                         </td>
                         <td>
                             {% for task in proc.active_tasks %}
-
-                                {{ task.assign_time|format_date:"%d %b %H:%M" }}
+                                {% if task.start_time == task.assign_time %}
+                                    Назначено автоматически
+                                {% else %}
+                                    {{ task.assign_time|format_date:"%d %b %H:%M" }}
+                                {% endif %}
                                 {% if not forloop.last %}
                                     <br>
                                 {% endif %}

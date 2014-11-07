@@ -29,20 +29,17 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'activeBPM',
-#    'silk'
-)
+    'activeBPM'
+]
 
-MIDDLEWARE_CLASSES = (
-
- #   'silk.middleware.SilkyMiddleware',
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,7 +47,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
 ROOT_URLCONF = 'devhim.urls'
 
@@ -109,5 +106,25 @@ LOGIN_URL = reverse_lazy('admin:login')
 LOGIN_REDIRECT_URL = '/'
 
 
+#---profiler SILK
+#ENABLE_SILK = True
 #SILKY_META = True
 #SILKY_PYTHON_PROFILER = True
+#MIDDLEWARE_CLASSES =  ['silk.middleware.SilkyMiddleware'] + MIDDLEWARE_CLASSES
+#INSTALLED_APPS += ['silk']
+
+#---email
+EMAIL_HOST_USER = 'ukrhimplast_notifier@ukrhimplast.com'
+EMAIL_HOST_PASSWORD = '777777'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+
+#---celery (need to be included in wsgi too)
+import djcelery
+djcelery.setup_loader()
+INSTALLED_APPS += ['djcelery']
+BROKER_URL = 'django://'
+INSTALLED_APPS += ['kombu.transport.django']
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
