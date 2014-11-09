@@ -234,16 +234,19 @@ def handle_uploaded_file(f, path):
 def file_control(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
     if request.method == 'POST':
-        task = request.POST['task_id']
-        proc = request.POST['instnc_id'] #empty if it is init task
+
         action = request.POST['action']
         if action == 'upload_task_file':
+            task = request.POST['task_id']
+            proc = request.POST['instnc_id'] #empty if it is init task
             purpose = request.POST['purpose']
             for file in request.FILES.values():
                 task_file = TaskFile(key=proc + '_' + task, file=file, purpose=purpose)
                 task_file.save()
             return HttpResponse('ok')
         elif action == 'get_task_files_props':
+            task = request.POST['task_id']
+            proc = request.POST['instnc_id']
             purpose = request.POST['purpose']
             task_files = TaskFile.objects.filter(key=proc + '_' + task, purpose=purpose).order_by('pk')
             task_files_props = [{'name': ntpath.split(model.file.name)[1], 'file_pk': model.pk,
@@ -265,16 +268,18 @@ def file_control(request):
         elif action == 'get_files_props':
             folder_shortcut = request.POST['folder_shortcut']
             folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
-            filenames = os.listdir(folder_path)
+            tree = os.walk(folder_path)
             files_props = []
-            for filename in filenames:
-                files_props.append({'name': filename, 'size': os.path.getsize(folder_path + filename)/1024})
+            for branch in tree:
+                for filename in branch[2]:
+                    files_props.append({'name': filename, 'size': os.path.getsize(branch[0] + '/' + filename)/1024,
+                                        'folder_path': branch[0].replace(folder_path, '')})
             return HttpResponse(json.dumps(files_props), content_type="application/json")
         elif action == 'delete_file':
             folder_shortcut = request.POST['folder_shortcut']
             folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
             filename = request.POST['filename']
-            file_path = folder_path + filename
+            file_path = folder_path + '/' + filename
             os.remove(file_path)
             if not os.listdir(folder_path):
                 os.rmdir(folder_path)

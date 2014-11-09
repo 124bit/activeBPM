@@ -90,7 +90,7 @@
                                                 <div id="task_files" class="col-md-5">
                                                 </div>
                                             </div>
-
+                                            <hr>
                                             <script>
                                                 function get_task_files() {
                                                     $.post('{% url "activeBPM:file-control" %}', {task_id: '{% if task %}{{ task.id }}{% else %}{{ init_task_id }}{% endif %}', instnc_id: '{{ task.proc_instnc_id }}', action: 'get_task_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', purpose: 'comment'}, function (data) {

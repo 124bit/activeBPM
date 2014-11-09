@@ -2,13 +2,208 @@
 {% load activeBPM_tags %}
 
 {% block main_form_fields %}
-    <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_files" data-toggle="tab">Файлы</a></li>
-        <li><a href="#tab_fields" data-toggle="tab">Поля спецификации</a></li>
+    <ul class='nav nav-tabs'>
+        <li class='active'><a href='#tab_files' data-toggle='tab'>Файлы</a></li>
+        <li><a href='#tab_fields' data-toggle='tab'>Поля спецификации</a></li>
     </ul>
 
-    <div class="tab-content">
-        <div class="tab-pane active" id="tab_files">..111.</div>
-        <div class="tab-pane" id="tab_fields">..22.</div>
+    <div class='tab-content'>
+        <div class='tab-pane active' id='tab_files'>
+            <div class='row' style='margin-top: 20px;'>
+                <label class='contol-label col-md-2' for='filename_select' style='margin-top: 10px; margin-right: -35px;'>Добавить файл</label>
+                <div class='form-group' style='width:295px;'>
+                    <select class='form-control' id='filename_select'>
+                        <optgroup label='0. Техническое задание'>
+                            <option value='ТЗ'>ТЗ</option>
+                        </optgroup>
+                        <optgroup label='1. Изделие'>
+                            <option value='Модель изделия'>Модель изделия</option>
+                            <option value='Чертеж изделия'>Чертеж изделия</option>
+                        </optgroup>
+                        <optgroup label='2. Форма'>
+                            <option value='Модель формы'>Модель формы</option>
+                            <option value='Модель формы с обвязкой'>Модель формы с обвязкой</option>
+                            <option value='Чертеж формы'>Чертеж формы</option>
+                            <option value='Чертеж формы позиции'>Чертеж формы позиции</option>
+                        </optgroup>
+                        <optgroup label='3. Раскрой'>
+                            <option value='Деталировка *'>Деталировка *</option>
+                            <option value='Раскрой *'>Раскрой *</option>
+                        </optgroup>
+                        <optgroup label='4. Проектная документация'>
+                            <option value='Титульная страница'>Титульная страница</option>
+                            <option value='Чертеж изделия'>Чертеж изделия</option>
+                            <option value='Чертеж формы'>Чертеж формы</option>
+                            <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
+                            <option value='Деталировка *'>Деталировка *</option>
+                        </optgroup>
+                        <optgroup id="other_optgroup" label='Другое'>
+                            <option value='Другой файл'>Другой файл</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 form-group">
+                    <span class="btn btn-default fileinput-button">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Выберите файлы</span>
+                        <input id="mold_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}" multiple>
+                     </span>
+                </div>
+                <div class="col-md-3" >
+                    <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                </div>
+            </div>
+            <div class="row" style="margin-top:20px;">
+                <div class="col-md-5">
+                    <div id="mold_file_progress" class="progress">
+                            <div class="progress-bar progress-bar-success"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="mold_files_list" class="col-md-5">
+                </div>
+            </div>
+
+
+            <div class="modal fade" id="filename_edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                            </button>
+                            <h5 class="modal-title" id="myModalLabel">Введите папку и название файла (без расширения)</h5>
+                        </div>
+                        <div class="modal-body">
+
+                                <div class='row'>
+                                    <div class="col-md-5" style="margin-left: 5px;">
+                                        <div class="input-group">
+                                            <div class="input-group-btn">
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Папка <span class="caret"></span></button>
+                                                <ul id='custom_folder_select' class="dropdown-menu" role="menu">
+                                                    <li><a href="#">корень</a></li>
+                                                    <li><a href="#">temp</a></li>
+                                                    <li><a href="#">0. Техническое задание</a></li>
+                                                    <li><a href="#">1. Изделие</a></li>
+                                                    <li><a href="#">2. Форма</a></li>
+                                                    <li><a href="#">3. Раскрой</a></li>
+                                                    <li><a href="#">4. Проектная документация</a></li>
+                                                    <li><a href="#">Другая папка</a></li>
+                                                </ul>
+                                            </div>
+                                            <input id='custom_folder' type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="margin-left: 15px;">
+                                        <div class='form-group' id='filename_formgroup'>
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Имя файла</span>
+                                                <input id='custom_filename' type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1" style="margin-left: 15px;">
+                                        <button id="ok_close_modal" type="button" class="btn btn-default" data-dismiss="modal">Выбрать</button>
+                                    </div>
+                                </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function get_upload_path(){
+                    var selected_option = $('#filename_select option:selected');
+                    var selected_option_val = selected_option.val().replace('корень', '');
+                    if (selected_option_val.indexOf('/') > -1)
+                        var path = selected_option_val
+                    else
+                        var path =  selected_option.parent().attr('label') + '/' + selected_option_val
+                    return path
+                }
+
+                function get_upload_path(option) {
+                    var selected_option = option;
+                    var selected_option_val = selected_option.val().replace('корень', '');
+                    if (selected_option_val.indexOf('/') > -1)
+                        var path = selected_option_val
+                    else
+                        var path =  selected_option.parent().attr('label') + '/' + selected_option_val
+                    return path
+                }
+
+
+                function get_mold_files() {
+                    var mold_folder = '{{ proc.vars.mold_number }}' + '. ' + '{{ proc.vars.mold_name }}'
+                    $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
+
+                                $('#mold_files_list').html('');
+                                for (var i = 0; i < data.length; i++)
+                                {
+                                    var href_str = 'href="{{ MEDIA_URL }}' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
+                                    var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['name']+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_mold_file('+"'" +data[i]['name']+"'" +','+"'"+ mold_folder + '/'+ data[i]['folder_path'] +"'" +','+"'"+'molds_documentation'+"'"+')" ></span></p>';
+                                    $('#mold_files_list').append(append_str);
+                                }
+                            });
+                }
+
+                function delete_mold_file (filename, folder, shortcut) {
+                                                    $.post('{% url "activeBPM:file-control" %}', {folder_shortcut: shortcut, folder_path: folder, filename:filename, action: 'delete_file', csrfmiddlewaretoken: '{{ csrf_token }}'}, function () {get_mold_files();});
+                                                };
+
+
+
+
+
+                $(document).ready(function(){
+                    $('#filename_select').val('Модель изделия'); //maybe $("option:first", this).val()
+
+                    $('#filename_select').change(function(){
+                        var value = this.value;
+                        if (value == 'Другой файл'){
+                            $('#filename_edit').modal()
+                        }
+                    })
+
+                    $('#cancel_close_modal').click(function(){
+                        $('#filename_select').val('Модель изделия');
+                    })
+
+                    $('#ok_close_modal').click(function(e){
+                        var new_folder = $('#custom_folder').val();
+                        var new_filename = $('#custom_filename').val();
+                        if (new_filename == '') {
+                            e.stopPropagation();
+                            $('#filename_formgroup').addClass('has-error');
+                            return;
+                        }
+                        else $('#filename_formgroup').removeClass('has-error');
+                        var new_value = new_folder + '/' + new_filename;
+                        if ($('#filename_select option[value="'+new_value+'"]').length == 0)
+                            $('#other_optgroup').append("<option value='@v'>@v</option>".replace(/@v/g,new_value));
+                        $('#filename_select').val(new_value);
+                    })
+
+                    $('#custom_folder_select a').click(function(){
+                        var new_folder_value = this.innerHTML;
+                        if (new_folder_value == 'Другая папка') {
+                            $('#custom_folder').val('');
+                        }
+                        else {
+                            $('#custom_folder').val(new_folder_value);
+                        }
+                        $('#custom_folder').focus();
+                    })
+
+                    get_mold_files();
+                })
+            </script>
+        </div>
+        <div class='tab-pane' id='tab_fields'>..22.</div>
     </div>
+    <hr>
 {%  endblock %}
