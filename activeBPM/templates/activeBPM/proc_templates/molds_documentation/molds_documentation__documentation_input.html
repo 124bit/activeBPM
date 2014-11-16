@@ -35,7 +35,7 @@
                             <option value='Чертеж изделия'>Чертеж изделия</option>
                             <option value='Чертеж формы'>Чертеж формы</option>
                             <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
-                            <option value='Деталировка *'>Деталировка *</option>
+                            <option value='Деталировка'>Деталировка *</option>
                         </optgroup>
                         <optgroup id="other_optgroup" label='Другое'>
                             <option value='Другой файл'>Другой файл</option>
@@ -48,7 +48,7 @@
                     <span class="btn btn-default fileinput-button">
                         <i class="glyphicon glyphicon-plus"></i>
                         <span>Выберите файлы</span>
-                        <input id="mold_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}" multiple>
+                        <input id="mold_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}">
                      </span>
                 </div>
                 <div class="col-md-3" >
@@ -107,7 +107,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-1" style="margin-left: 15px;">
-                                        <button id="ok_close_modal" type="button" class="btn btn-default" data-dismiss="modal">Выбрать</button>
+                                        <button id="ok_close_filename_modal" type="button" class="btn btn-default" data-dismiss="modal">Выбрать</button>
                                     </div>
                                 </div>
 
@@ -115,95 +115,200 @@
                     </div>
                 </div>
             </div>
-            <script>
-                function get_upload_path(){
-                    var selected_option = $('#filename_select option:selected');
-                    var selected_option_val = selected_option.val().replace('корень', '');
-                    if (selected_option_val.indexOf('/') > -1)
-                        var path = selected_option_val
-                    else
-                        var path =  selected_option.parent().attr('label') + '/' + selected_option_val
-                    return path
-                }
-
-                function get_upload_path(option) {
-                    var selected_option = option;
-                    var selected_option_val = selected_option.val().replace('корень', '');
-                    if (selected_option_val.indexOf('/') > -1)
-                        var path = selected_option_val
-                    else
-                        var path =  selected_option.parent().attr('label') + '/' + selected_option_val
-                    return path
-                }
 
 
-                function get_mold_files() {
-                    var mold_folder = '{{ proc.vars.mold_number }}' + '. ' + '{{ proc.vars.mold_name }}'
-                    $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
-
-                                $('#mold_files_list').html('');
-                                for (var i = 0; i < data.length; i++)
-                                {
-                                    var href_str = 'href="{{ MEDIA_URL }}' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
-                                    var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['name']+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_mold_file('+"'" +data[i]['name']+"'" +','+"'"+ mold_folder + '/'+ data[i]['folder_path'] +"'" +','+"'"+'molds_documentation'+"'"+')" ></span></p>';
-                                    $('#mold_files_list').append(append_str);
-                                }
-                            });
-                }
-
-                function delete_mold_file (filename, folder, shortcut) {
-                                                    $.post('{% url "activeBPM:file-control" %}', {folder_shortcut: shortcut, folder_path: folder, filename:filename, action: 'delete_file', csrfmiddlewaretoken: '{{ csrf_token }}'}, function () {get_mold_files();});
-                                                };
-
-
-
-
-
-                $(document).ready(function(){
-                    $('#filename_select').val('Модель изделия'); //maybe $("option:first", this).val()
-
-                    $('#filename_select').change(function(){
-                        var value = this.value;
-                        if (value == 'Другой файл'){
-                            $('#filename_edit').modal()
-                        }
-                    })
-
-                    $('#cancel_close_modal').click(function(){
-                        $('#filename_select').val('Модель изделия');
-                    })
-
-                    $('#ok_close_modal').click(function(e){
-                        var new_folder = $('#custom_folder').val();
-                        var new_filename = $('#custom_filename').val();
-                        if (new_filename == '') {
-                            e.stopPropagation();
-                            $('#filename_formgroup').addClass('has-error');
-                            return;
-                        }
-                        else $('#filename_formgroup').removeClass('has-error');
-                        var new_value = new_folder + '/' + new_filename;
-                        if ($('#filename_select option[value="'+new_value+'"]').length == 0)
-                            $('#other_optgroup').append("<option value='@v'>@v</option>".replace(/@v/g,new_value));
-                        $('#filename_select').val(new_value);
-                    })
-
-                    $('#custom_folder_select a').click(function(){
-                        var new_folder_value = this.innerHTML;
-                        if (new_folder_value == 'Другая папка') {
-                            $('#custom_folder').val('');
-                        }
-                        else {
-                            $('#custom_folder').val(new_folder_value);
-                        }
-                        $('#custom_folder').focus();
-                    })
-
-                    get_mold_files();
-                })
-            </script>
         </div>
-        <div class='tab-pane' id='tab_fields'>..22.</div>
+        <div class='tab-pane' id='tab_fields'>
+            2222
+        </div>
     </div>
     <hr>
+
+
+    <div class="modal fade" id="close_check" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                    </button>
+                    <h3 class="modal-title" id="myModalLabel">Вы уверены, что хотите закончить не заполнив все данные?</h3>
+                </div>
+                <div class="modal-body">
+                        <div class='row'>
+                            <div class="col-md-4" style="margin-left: 15px;">
+                                <h4>Не загруженные файлы:</h4>
+                                <ul class="list-group" id="not_uploaded_files">
+                                </ul>
+                            </div>
+                            <div class="col-md-4" style="margin-left: 15px;">
+                                <h4>Не заполненные поля:</h4>
+                                <ul class="list-group" id="not_filled_fields">
+                                </ul>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class="col-md-3" style="margin-left: 15px;">
+                                <button id="no_close_endtask_modal" type="button" class="btn btn-default" data-dismiss="modal">Вернуться к заполнению</button>
+                            </div>
+                            <div class="col-md-3" style="margin-left: 15px;">
+                                <button id="ok_close_endtask_modal" type="button" class="btn btn-default" data-dismiss="modal">Уверен, завершить задачу</button>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var mold_folder = '{{ proc.vars.mold_number }}' + '. ' + '{{ proc.vars.mold_name }}';
+        var mold_files;
+
+        function get_upload_props(){
+            var selected_option = $('#filename_select option:selected');
+            var selected_option_val = selected_option.val().replace('корень', '');
+            if (selected_option_val.indexOf('/') > -1)
+                var path = selected_option_val;
+            else
+                var path =  selected_option.parent().attr('label') + '/' + selected_option_val;
+            path=path.split('/');
+            path[0] = mold_folder + '/' + path[0];
+            var orig_name = path[1];
+            var new_name = orig_name;
+            var mold_files_names = mold_files.map(function (a){return a['name'].split('.')[0]});
+            var i = 2;
+            while (mold_files_names.indexOf(new_name) > -1) {
+                new_name = orig_name.split('.');
+                new_name[0] = new_name[0] + ' - ' + i
+                new_name = new_name.join('');
+                i++;
+            }
+            path[1] = new_name;
+             $('#mold_files').fileupload('option',{formData: {folder_path: path[0], action: 'upload_file',  csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut:'molds_documentation', chg_filename: path[1]}});
+            return path;
+        }
+
+        function color_select() {
+            $("#filename_select option").css('color','#555');
+            $("#filename_select").css('color','#555');
+            $("#filename_select optgroup").css('color','#555');
+            for (var i = 0; i < mold_files.length; i++)
+            {
+                $("#filename_select option[value*='" + mold_files[i]['name']+"']").css('color','green');
+                if ($("#filename_select option:selected[value*='"+mold_files[i]['name']+"']").length>0) {
+                    $("#filename_select").css('color','green');
+                }
+            }
+        }
+
+        function get_mold_files() {
+            $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
+                        $('#mold_files_list').html('');
+
+                        for (var i = 0; i < data.length; i++)
+                        {
+                            var href_str = 'href="{{ MEDIA_URL }}' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
+                            var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['folder_path']+ '/'+data[i]['name']+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_mold_file('+"'" +data[i]['name']+"'" +','+"'"+ mold_folder + '/'+ data[i]['folder_path'] +"'" +','+"'"+'molds_documentation'+"'"+')" ></span></p>';
+                            $('#mold_files_list').append(append_str);
+                        }
+                        mold_files = data;
+                        get_upload_props();
+                        color_select();
+                    });
+        }
+
+        function delete_mold_file (filename, folder, shortcut) {
+                                            $.post('{% url "activeBPM:file-control" %}', {folder_shortcut: shortcut, folder_path: folder, filename:filename, action: 'delete_file', csrfmiddlewaretoken: '{{ csrf_token }}'}, function () {get_mold_files();});
+                                        };
+
+
+
+        $(document).ready(function(){
+            get_mold_files();
+
+            $('#filename_select').val('Модель изделия'); //maybe $("option:first", this).val()
+
+            $('#filename_select').change(function(){
+                var value = this.value;
+                if (value == 'Другой файл'){
+                    $('#filename_edit').modal();
+                }
+                get_upload_props();
+                color_select();
+            });
+
+            $('#cancel_close_modal').click(function(){
+                $('#filename_select').val('Модель изделия');
+            });
+
+            $('#ok_close_filename_modal').click(function(e){
+                var new_folder = $('#custom_folder').val();
+                var new_filename = $('#custom_filename').val();
+                if (new_filename == '') {
+                    e.stopPropagation();
+                    $('#filename_formgroup').addClass('has-error');
+                    return;
+                }
+                else $('#filename_formgroup').removeClass('has-error');
+                var new_value = new_folder + '/' + new_filename;
+                if ($('#filename_select option[value="'+new_value+'"]').length == 0)
+                    $('#other_optgroup').append("<option value='@v'>@v</option>".replace(/@v/g,new_value));
+                $('#filename_select').val(new_value);
+
+                get_upload_props();
+                color_select();
+            })
+
+            $('#custom_folder_select a').click(function(){
+                var new_folder_value = this.innerHTML;
+                if (new_folder_value == 'Другая папка') {
+                    $('#custom_folder').val('');
+                }
+                else {
+                    $('#custom_folder').val(new_folder_value);
+                }
+                $('#custom_folder').focus();
+            });
+
+            $('#mold_files').fileupload({
+                autoUpload: true,
+                done: function () {
+                    $('#mold_file_progress .progress-bar').css(
+                        'width',
+                        '0%'
+                    );
+                    get_mold_files();
+                },
+                progressall: function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#mold_file_progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                    );
+                }
+            });
+
+            $('#task_end_button').click(function(e){
+                e.preventDefault();
+                options = $('#filename_select option');
+                $('#not_uploaded_files').empty();
+                for (var i = 0; i < options.length; i++)
+                {
+                   el = $(options[i]);
+                   if (el.css('color') !=  'green' && el.parent().attr('label') != 'Другое'){
+                        $('#not_uploaded_files').append('<li class="list-group-item">' + (i + 1) + '. ' + el.val() + '</li>');
+                   }
+                }
+                $('#close_check').modal();
+            })
+
+            $('#ok_close_endtask_modal').click(function(){
+                $('#main_task_form').submit();
+            })
+
+
+        })
+    </script>
 {%  endblock %}

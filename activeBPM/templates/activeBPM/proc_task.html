@@ -36,7 +36,7 @@
                 <div class="panel-body">
                     {% block task_body %}
                         {% if task.state == 'assigned' and not task.suspended or not task %}
-                            <form  role="form" {% block form_attrs %}action="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}" method="post"{% endblock %}>
+                            <form id='main_task_form' role="form" {% block form_attrs %}action="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}" method="post"{% endblock %}>
                                 {{ form.non_field_errors }}
                                 {% block form_insides %}
                                     {% block form_fields %}
@@ -137,7 +137,7 @@
                                     {% block submit_button %}
                                         <div class="row" style="margin-top:20px;">
                                             <div class='col-md-12'>
-                                                <button class="btn btn-default" type="submit">Завершить задачу</button>
+                                                <button id="task_end_button" class="btn btn-default" type="submit">Завершить задачу</button>
                                             </div>
                                         </div>
                                     {% endblock %}

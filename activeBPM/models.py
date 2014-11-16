@@ -33,6 +33,6 @@ from django.dispatch.dispatcher import receiver
 
 @receiver(pre_delete, sender=TaskFile)
 def mymodel_delete(sender, instance, **kwargs):
-    file_folder = settings.MEDIA_ROOT + ntpath.split(instance.file.name)[0]
+    file_folder = os.path.join(settings.MEDIA_ROOT, ntpath.split(instance.file.name)[0])
     instance.file.delete(False)
     os.rmdir(file_folder)

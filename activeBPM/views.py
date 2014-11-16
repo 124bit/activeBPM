@@ -11,15 +11,17 @@ import os
 import ntpath
 import json
 
-template_folder = 'activeBPM/'
-proc_dashbord_template = template_folder + 'proc_dashbord.html'
-all_proc_template = template_folder + 'all_proc.html'
-proc_status_template = template_folder + 'proc_base.html'
-task_template = template_folder + 'task.html'
-proc_init_template = template_folder + 'proc_base.html'
+template_folder = 'activeBPM'
+proc_dashbord_template = os.path.join(template_folder, 'proc_dashbord.html')
+all_proc_template = os.path.join(template_folder, 'all_proc.html')
+proc_control_template = os.path.join(template_folder, 'proc_control.html')
+proc_status_template = os.path.join(template_folder, 'proc_base.html')
+task_template = os.path.join(template_folder, 'task.html')
+proc_init_template = os.path.join(template_folder, 'proc_base.html')
 category = 'Molds development'
 forms_module = process_forms_default
-folders_paths = {'molds_documentation': settings.MEDIA_ROOT + 'Dropbox/molds_documentation/'}
+folders_paths = {'molds_documentation': os.path.join(settings.MEDIA_ROOT, 'Dropbox/molds_documentation/')}
+
 
 #TODO profile
 #TODO add a web account existance check
@@ -37,7 +39,6 @@ def proc_dashboard_view(request):
     finished_proc_table = reversed(rest_client.get_proc_instncs_info_by_category(category,
                                                                                        def_state='active',
                                                                                        instnc_state='finished'))
-
 
     admin_userids = rest_client.get_group_userids_by_group_name('admin')
     if request.user.bpmsuser.login in admin_userids:
@@ -113,10 +114,10 @@ def task_view(request):
             return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
     else:
         task_form = task_form_class()
-    proc_template_folder = template_folder + 'proc_templates/%s/' % proc['def_key']
-    proc_task_default_template = proc_template_folder + 'task_default.html'
+    proc_template_folder = os.path.join(template_folder, 'proc_templates', proc['def_key'], '')
+    proc_task_default_template = os.path.join(proc_template_folder, 'task_default.html')
     proc_task_main_default_template = 'activeBPM/proc_templates/default_process/task_default.html'
-    task_tmpl = proc_template_folder + '%s__%s.html' % (proc['def_key'], task['def_key'])
+    task_tmpl = os.path.join(proc_template_folder, '%s__%s.html' % (proc['def_key'], task['def_key']))
     tmpl_dict = {'proc': proc, 'task': task, 'task_form': task_form}
     try:
         return render(request, task_tmpl, tmpl_dict)
@@ -125,6 +126,7 @@ def task_view(request):
             return render(request, proc_task_default_template, tmpl_dict)
         except TemplateDoesNotExist:
             return render(request, proc_task_main_default_template, tmpl_dict)
+
 
 #TODO init files loading works incorrect. Need right init behavior in process history and in file uploading
 #upload with nowtime and then update key to process instance id
@@ -155,9 +157,9 @@ def proc_init_view(request):
             return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
     else:
         task_form = task_form_class()
-    proc_template_folder = template_folder + 'proc_templates/%s/' % proc['def_key']
+    proc_template_folder = os.path.join(template_folder, 'proc_templates', proc['def_key'], '')
     default_template = 'activeBPM/proc_templates/default_process/process_init_default.html'
-    task_tmpl = proc_template_folder + '%s__%s.html' % (proc['def_key'], 'init')
+    task_tmpl = os.path.join(proc_template_folder, '%s__%s.html' % (proc['def_key'], 'init'))
     tmpl_dict = {'proc': proc, 'init_task_id': init_task_id}
     tmpl_dict['task_form'] = task_form
     try:
@@ -190,15 +192,16 @@ def proc_control_view(request):
         controled_active_proc_table = active_proc_table
         controled_suspended_proc_table = suspended_proc_table
     else:
-        controled_active_proc_table = [proc for proc in active_proc_table if proc['initiator'] == request.user.bpmsuser.login]
-        controled_suspended_proc_table = [proc for proc in suspended_proc_table if proc['initiator'] == request.user.bpmsuser.login]
-
+        controled_active_proc_table = [proc for proc in active_proc_table
+                                       if proc['initiator'] == request.user.bpmsuser.login]
+        controled_suspended_proc_table = [proc for proc in suspended_proc_table
+                                          if proc['initiator'] == request.user.bpmsuser.login]
 
     tmpl_dict = {
         'active_proc_table': controled_active_proc_table,
         'suspended_proc_table': controled_suspended_proc_table
     }
-    return render(request, template_folder + '/proc_control.html', tmpl_dict)
+    return render(request, proc_control_template, tmpl_dict)
 
 
 @login_required()
@@ -225,20 +228,22 @@ def proc_xml(request):
     return HttpResponse(proc_xml_content, content_type="text/plain; charset=utf-8")
 
 
-def handle_uploaded_file(f, path):
-    with open(path, 'wb+') as destination:
+def handle_uploaded_file(f, path, name):
+    file_path = os.path.join(path, name)
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(file_path, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
+
 @login_required()
 def file_control(request):
-    rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
     if request.method == 'POST':
-
         action = request.POST['action']
         if action == 'upload_task_file':
             task = request.POST['task_id']
-            proc = request.POST['instnc_id'] #empty if it is init task
+            proc = request.POST['instnc_id']  # empty if it is init task
             purpose = request.POST['purpose']
             for file in request.FILES.values():
                 task_file = TaskFile(key=proc + '_' + task, file=file, purpose=purpose)
@@ -259,27 +264,39 @@ def file_control(request):
             return HttpResponse('ok')
         elif action == 'upload_file':
             folder_shortcut = request.POST['folder_shortcut']
-            folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
-            filename = request.POST['filename']
-            file_path = folder_path + filename
+            folder_path = os.path.join(folders_paths[folder_shortcut], request.POST['folder_path'], '')
+            if 'filename' in request.POST:
+                filename = request.POST['filename']
+                chg_filename = None
+            else:
+                filename = None
+                chg_filename = request.POST['chg_filename']
             for file in request.FILES.values():
-                handle_uploaded_file(file, file_path)
+                if filename:
+                    handle_uploaded_file(file, folder_path, filename)
+                else:
+                    extension = os.path.splitext(file.name)[1]
+                    chg_filename += extension
+                    handle_uploaded_file(file, folder_path, chg_filename)
             return HttpResponse('ok')
         elif action == 'get_files_props':
             folder_shortcut = request.POST['folder_shortcut']
-            folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
+            folder_path = os.path.join(folders_paths[folder_shortcut], request.POST['folder_path'], '')
             tree = os.walk(folder_path)
             files_props = []
             for branch in tree:
                 for filename in branch[2]:
-                    files_props.append({'name': filename, 'size': os.path.getsize(branch[0] + '/' + filename)/1024,
+                    file_path = os.path.join(branch[0], filename)
+                    file_size = os.path.getsize(file_path)/1024
+                    files_props.append({'name': filename, 'size': file_size,
                                         'folder_path': branch[0].replace(folder_path, '')})
+            files_props.sort(key=lambda k: k['folder_path'])
             return HttpResponse(json.dumps(files_props), content_type="application/json")
         elif action == 'delete_file':
             folder_shortcut = request.POST['folder_shortcut']
-            folder_path = folders_paths[folder_shortcut] + request.POST['folder_path']
+            folder_path = os.path.join(folders_paths[folder_shortcut], request.POST['folder_path'], '')
             filename = request.POST['filename']
-            file_path = folder_path + '/' + filename
+            file_path = os.path.join(folder_path,  filename)
             os.remove(file_path)
             if not os.listdir(folder_path):
                 os.rmdir(folder_path)
