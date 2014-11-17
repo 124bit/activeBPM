@@ -66,8 +66,24 @@
                 <div id="mold_files_list" class="col-md-5">
                 </div>
             </div>
+            <div id="dropbox_button" style="display: none;" class="row">
+                <div style="width: 180px; opacity:0.5; margin-left: 15px;">
+                    <a class="btn btn-block btn-social btn-dropbox btn-xs">
+                        <i class="fa fa-dropbox"></i> Посмотреть на Dropbox
+                    </a>
+                </div>
+            </div>
+            <style>
+                @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css);
 
+                .btn-dropbox{color:#fff;background-color:#1087dd;border-color:rgba(0,0,0,0.2)}.btn-dropbox:hover,.btn-dropbox:focus,.btn-dropbox:active,.btn-dropbox.active,.open .dropdown-toggle.btn-dropbox{color:#fff;background-color:#0d70b7;border-color:rgba(0,0,0,0.2)}
+.btn-dropbox:active,.btn-dropbox.active,.open .dropdown-toggle.btn-dropbox{background-image:none}
+.btn-dropbox.disabled,.btn-dropbox[disabled],fieldset[disabled] .btn-dropbox,.btn-dropbox.disabled:hover,.btn-dropbox[disabled]:hover,fieldset[disabled] .btn-dropbox:hover,.btn-dropbox.disabled:focus,.btn-dropbox[disabled]:focus,fieldset[disabled] .btn-dropbox:focus,.btn-dropbox.disabled:active,.btn-dropbox[disabled]:active,fieldset[disabled] .btn-dropbox:active,.btn-dropbox.disabled.active,.btn-dropbox[disabled].active,fieldset[disabled] .btn-dropbox.active{background-color:#1087dd;border-color:rgba(0,0,0,0.2)}
+                .btn-social{position:relative;padding-left:44px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.btn-social :first-child{position:absolute;left:0;top:0;bottom:0;width:32px;line-height:34px;font-size:1.6em;text-align:center;border-right:1px solid rgba(0,0,0,0.2)}
+                .btn-social.btn-sm{padding-left:38px}.btn-social.btn-sm :first-child{line-height:28px;width:28px;font-size:1.4em}
+                .btn-social.btn-xs{padding-left:30px}.btn-social.btn-xs :first-child{line-height:20px;width:20px;font-size:1.2em}
 
+            </style>
             <div class="modal fade" id="filename_edit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -119,7 +135,55 @@
 
         </div>
         <div class='tab-pane' id='tab_fields'>
-            2222
+            <div class="row" style="margin-top: 20px;">
+                <div id='fields_div' class="col-md-5">
+                    <div id="fields_fill_button_div"></div>
+                    <div class="form-group">
+                        <label for="buh_name">Бухгалетрское названия изделия (в документах, 1с)</label>
+                        <input type="text" class="form-control" id="buh_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="expl">Назначение изделия и условия эксплуатации, для кого предназначено изделие (группы покупателей\компания)</label>
+                        <textarea cols="3" class="form-control" id="expl"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="colors">Цвета (основные)</label>
+                        <input type="text" class="form-control" id="colors">
+                    </div>
+                    <div class="form-group">
+                        <label for="zakladnie">Закладные (количество\тип\залиываются ли)</label>
+                        <textarea cols="3" class="form-control" id="zakladnie"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="detali">Обязательные комплектующие (крышки, баки, другие детали)</label>
+                        <textarea cols="3" class="form-control" id="detali"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dop_izd">Дополнительные комплектные изделия, информация о комплекте</label>
+                        <textarea cols="3" class="form-control" id="dop_izd"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="spec_of_manuf">Специфика производства, обрезки, сборки, упаковки и хранения</label>
+                        <textarea cols="3" class="form-control" id="spec_of_manuf"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="qual_control">Процедура контроля качества (самые важные размеры, формы, плоскости)</label>
+                        <textarea cols="3" class="form-control" id="qual_control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Вес формы (с обвязкой\без)</label>
+                        <input type="text" class="form-control" id="weight">
+                    </div>
+                    <div class="form-group">
+                        <label for="wall_thickn">Рекомендуемые веса и толщины стенок модификаций изделия, рекомендуемые режимы работы ротомашины</label>
+                        <textarea cols="3" class="form-control" id="wall_thickn"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="add_info">Дополнительная информация</label>
+                        <textarea cols="3" class="form-control" id="add_info"></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <hr>
@@ -132,7 +196,7 @@
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                     </button>
-                    <h3 class="modal-title" id="myModalLabel">Вы уверены, что хотите закончить не заполнив все данные?</h3>
+                    <h3 class="modal-title" id="myModalLabel1">Вы уверены, что хотите закончить не заполнив все данные?</h3>
                 </div>
                 <div class="modal-body">
                         <div class='row'>
@@ -141,7 +205,7 @@
                                 <ul class="list-group" id="not_uploaded_files">
                                 </ul>
                             </div>
-                            <div class="col-md-4" style="margin-left: 15px;">
+                            <div class="col-md-7" style="margin-left: 15px;">
                                 <h4>Не заполненные поля:</h4>
                                 <ul class="list-group" id="not_filled_fields">
                                 </ul>
@@ -160,7 +224,6 @@
             </div>
         </div>
     </div>
-
 
     <script>
         var mold_folder = '{{ proc.vars.mold_number }}' + '. ' + '{{ proc.vars.mold_name }}';
@@ -190,6 +253,13 @@
             return path;
         }
 
+        function fields_fill_button_add(){
+            $('#fields_fill_button_div').empty();
+            for (var i = 0; i < mold_files.length; i++)
+                if (mold_files[i]['name']=='спецификация.txt' && mold_files[i]['folder_path'] == '')
+                    $('#fields_fill_button_div').append('<button id="fields_fill_button"  style="margin-bottom: 20px;" class="btn btn-default">Заполнить поля из существующей спецификации</button>');
+        }
+
         function color_select() {
             $("#filename_select option").css('color','#555');
             $("#filename_select").css('color','#555');
@@ -206,16 +276,19 @@
         function get_mold_files() {
             $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
                         $('#mold_files_list').html('');
-
+                        $('#dropbox_button').css('display', 'none');
                         for (var i = 0; i < data.length; i++)
                         {
-                            var href_str = 'href="{{ MEDIA_URL }}' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
+                            if (data[i]['name']=='спецификация.txt' && data[i]['folder_path'] == '') continue
+                            var href_str = 'href="{{ MEDIA_URL }}' +'Dropbox/molds_documentation/'+ mold_folder + '/' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
                             var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['folder_path']+ '/'+data[i]['name']+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_mold_file('+"'" +data[i]['name']+"'" +','+"'"+ mold_folder + '/'+ data[i]['folder_path'] +"'" +','+"'"+'molds_documentation'+"'"+')" ></span></p>';
                             $('#mold_files_list').append(append_str);
                         }
+                        if (data.length>0) $('#dropbox_button').css('display', 'block');
                         mold_files = data;
                         get_upload_props();
                         color_select();
+                        fields_fill_button_add();
                     });
         }
 
@@ -224,9 +297,105 @@
                                         };
 
 
+        function autosave_fields(){
+            var fields = $('#tab_fields input').add('#tab_fields textarea');
+            var data = {};
+            for (var i = 0; i < fields.length; i++){
+                 var field_id = $(fields[i]).attr('id');
+                 var field_val = $('#'+field_id).val();
+                 data[field_id] = field_val;
+            }
+            $.ajax({
+                     type: "POST",
+                     url: "{% url "activeBPM:variable-control" %}",
+                     data: {task_variables: data, action: 'set_task_vars', task_id: '{{ task.id }}'}
+                 });
+        }
+
+        function autosave_fields_run(){
+                window.setInterval(autosave_fields,10000);
+        }
+
+        function autofill_fields() {
+            var field_vars = {{ task.vars|safe }};
+            for (var var_name in field_vars){
+                var field = $('#'+var_name);
+                field.val(field_vars[var_name]);
+            }
+        }
+
+        function write_spec (){
+            var fields = $('#tab_fields input').add('#tab_fields textarea');
+            var text = '';
+            for (var i = 0; i < fields.length; i++) {
+                var field = $(fields[i])
+                var field_val = field.val();
+                var field_label = $('label[for=' + field.attr('id') + ']').text();
+                text += '[' + field_label + ']\n' + field_val + '\n'
+            }
+
+            var boundary = "---------------------------boundry";
+            var body = '--' + boundary + '\r\n'
+                 + 'Content-Disposition: form-data; name="folder_path";\r\n\r\n'
+                 + mold_folder + '/\r\n'
+                 + '--' + boundary + '\r\n'
+                 + 'Content-Disposition: form-data; name="action";\r\n\r\n'
+                 + 'upload_file\r\n'
+                 + '--' + boundary + '\r\n'
+                 + 'Content-Disposition: form-data; name="folder_shortcut";\r\n\r\n'
+                 + 'molds_documentation\r\n'
+                 + '--' + boundary + '\r\n'
+                 + 'Content-Disposition: form-data; name="csrfmiddlewaretoken";\r\n\r\n'
+                 + '{{ csrf_token }}\r\n'
+                 + '--' + boundary + '\r\n'
+                 + 'Content-Disposition: form-data; name="chg_filename";\r\n\r\n'
+                 + 'спецификация\r\n'
+                 + '--' + boundary + '\r\n'
+                 + 'Content-Disposition: form-data; name="files[]";'
+                 + 'filename="spec.txt"\r\n'
+                 + 'Content-type: plain/text\r\n\r\n'
+                 + text + '\r\n'
+                 + '--'+ boundary + '--';
+            $.ajax({
+                contentType: "multipart/form-data; boundary="+boundary,
+                data: body,
+                type: "POST",
+                async: false,
+                url: "{% url "activeBPM:file-control" %}"
+            });
+        }
+
+        function read_spec(){
+            var string_data = $.ajax({
+                    url: "{{ MEDIA_URL }}/Dropbox/molds_documentation/" + mold_folder +'/спецификация.txt',
+                    async: false
+                 }).responseText;
+            string_data = string_data.substring(1);
+            string_data = string_data.substring(0, string_data.length - 1);
+            var split_text = string_data.split('\n[');
+            for (var i = 0; i < split_text.length; i++) {
+                var field_props = split_text[i].split(']\n');
+                var field_id = $('label').filter(function() {
+                    return $(this).text() == field_props[0];
+                }).attr('for');
+
+                $('#' + field_id).val(field_props[1]);
+            }
+        }
+
+        function end_task(){
+            write_spec();
+            $.post('{% url "activeBPM:zip-folder-task-file" %}', {folder_path: mold_folder, csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation', task_id: '{{ task.id }}', instnc_id: '{{ proc.instnc_id }}', purpose: 'comment'});
+            //$('#main_task_form').submit();
+        }
 
         $(document).ready(function(){
+            autofill_fields();
+            autosave_fields_run();
+
             get_mold_files();
+
+
 
             $('#filename_select').val('Модель изделия'); //maybe $("option:first", this).val()
 
@@ -259,7 +428,7 @@
 
                 get_upload_props();
                 color_select();
-            })
+            });
 
             $('#custom_folder_select a').click(function(){
                 var new_folder_value = this.innerHTML;
@@ -292,22 +461,46 @@
 
             $('#task_end_button').click(function(e){
                 e.preventDefault();
+                var show_modal = false;
+
                 options = $('#filename_select option');
                 $('#not_uploaded_files').empty();
                 for (var i = 0; i < options.length; i++)
                 {
                    el = $(options[i]);
                    if (el.css('color') !=  'green' && el.parent().attr('label') != 'Другое'){
-                        $('#not_uploaded_files').append('<li class="list-group-item">' + (i + 1) + '. ' + el.val() + '</li>');
+                       $('#not_uploaded_files').append('<li class="list-group-item">' + (i + 1) + '. ' + el.val() + '</li>');
+                       show_modal = true;
                    }
                 }
-                $('#close_check').modal();
-            })
+
+                var fields = $('#tab_fields input').add('#tab_fields textarea');
+                for (var i = 0; i < fields.length; i++){
+                     var field = $(fields[i])
+                     var field_val = field.val();
+                     if (field_val == ''){
+                         $('#not_filled_fields').append('<li class="list-group-item">' + (i + 1) + '. ' + $('label[for=' + field.attr('id') +']').text() + '</li>');
+                        show_modal = true;
+                     }
+                }
+                if (show_modal)
+                    $('#close_check').modal();
+                else
+                    end_task();
+            });
 
             $('#ok_close_endtask_modal').click(function(){
-                $('#main_task_form').submit();
+                end_task();
+            });
+
+            $('#dropbox_button').click(function(){
+                window.open('https://www.dropbox.com/home/{{ proc.vars.mold_folder }}');
             })
 
+            $('#fields_fill_button_div').click(function(e) {
+                e.preventDefault();
+                read_spec();
+            })
 
         })
     </script>

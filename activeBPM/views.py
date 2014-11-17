@@ -7,6 +7,7 @@ from activeBPM.models import TaskFile
 from django.template import TemplateDoesNotExist
 from activeBPM import process_forms_default
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 import os
 import ntpath
 import json
@@ -90,7 +91,8 @@ def proc_status_view(request):
     tmpl_dict = {'proc': proc}
     return render(request, proc_status_template, tmpl_dict)
 
-#TODO caeck if task is a task of right user and process is active
+
+#TODO check if task is a task of right user and process is active
 @login_required()
 def task_view(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
@@ -219,6 +221,36 @@ def task_control(request):
         return HttpResponseRedirect(reverse('activeBPM:process-dashboard'))
 
 
+@csrf_exempt
+@login_required()
+def var_control(request):
+    rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
+    action = request.POST['action']
+    if action == 'set_task_vars':
+        task_id = request.POST['task_id']
+        task_vars = {}
+        for name, value in request.POST.items():
+            if name.startswith('task_variables'):
+                var_name = name.lstrip('task_variables[').rstrip(']')
+                task_vars[var_name] = value
+        rest_client.set_task_vars(task_id, task_vars)
+        return HttpResponse('ok')
+    #elif action == 'get_task_vars':
+    #    task_id = request.POST['task_id']
+    #    task_var_names = request.POST['task_var_names']
+    elif action == 'set_proc_vars':
+        proc_id = request.POST['proc_id']
+        proc_vars = {}
+        for name, value in request.POST.items():
+            if name.startswith('proc_variables'):
+                var_name = name.lstrip('proc_variables[').rstrip(']')
+                proc_vars[var_name] = value
+        rest_client.set_task_vars(proc_id, proc_vars)
+        return HttpResponse('ok')
+    #elif action == 'get_proc_vars':
+    #    pass
+
+
 #TODO maybe refactor the same parts, put in class, make all login, etc
 @login_required()
 def proc_xml(request):
@@ -304,7 +336,43 @@ def file_control(request):
 
     elif request.method == 'GET':
         file_pk = request.GET['file_pk']
-        task_file = TaskFile.objects.get(pk=file_pk)
-        response = HttpResponse(task_file.file)
-        response['Content-Disposition'] = 'attachment; filename=' + ntpath.split(task_file.file.name)[1]
-        return response
+        task_file = TaskFile.objects.get(pk=file_pk).file
+        #response = HttpResponse(task_file.file)
+        #filename = ntpath.split(task_file.file.name)[1]
+        #response['Content-Disposition'] = 'attachment; filename*=UTF-8\'\'%s' % filename
+        return HttpResponseRedirect(settings.MEDIA_URL + task_file.name)
+
+
+import zipfile
+from django.core.files import File
+import os
+def zipdir(path, zip):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            zip.write(os.path.join(root, file))
+
+
+@login_required()
+def zip_folder_task_file(request):
+    task = request.POST['task_id']
+    proc = request.POST['instnc_id']
+    purpose = request.POST['purpose']
+    folder_shortcut = request.POST['folder_shortcut']
+    folder_path = os.path.join(folders_paths[folder_shortcut], request.POST['folder_path'], '')
+    temp_folder = os.path.join(folders_paths[folder_shortcut], 'temp',  '')
+    tempr_folder = os.path.join(temp_folder, proc + '_' + task, '')
+    zip_file_path = os.path.join(tempr_folder, 'снимок_папки.zip')
+    if not os.path.exists(tempr_folder):
+        os.makedirs(tempr_folder)
+    zipf = zipfile.ZipFile(zip_file_path, 'w')
+    zipdir(folder_path, zipf)
+    zipf.close()
+    with open(zip_file_path, 'rb') as outfile:
+        dj_file = File(outfile)
+        task_file = TaskFile(key=proc + '_' + task, file=dj_file, purpose=purpose)
+        task_file.save()
+    os.remove(zip_file_path)
+    os.rmdir(tempr_folder)
+    if not os.listdir(temp_folder):
+        os.rmdir(temp_folder)
+    return HttpResponse('ok')
