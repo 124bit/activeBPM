@@ -10,18 +10,13 @@
                 <table class="table">
                     <tr>
                         <th>Процесс</th>
-                        <th>Форма</th>
                         <th>Начало</th>
                         <th></th>
                     </tr>
                     {% for proc in active_proc_table %}
                         <tr>
                             <td>
-                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
-                            </td>
-
-                            <td>
-                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>
                             </td>
 
                             <td>
@@ -70,7 +65,7 @@
                             </td>
 
                             <td>
-                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                                {{ proc.vars.mold_folder }}
                             </td>
 
                             <td>

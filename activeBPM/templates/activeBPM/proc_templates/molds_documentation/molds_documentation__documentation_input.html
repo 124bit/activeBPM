@@ -1,4 +1,4 @@
-{% extends 'activeBPM/proc_task.html' %}
+{% extends 'activeBPM/proc_templates/default_process/task_default.html' %}
 {% load activeBPM_tags %}
 
 {% block main_form_fields %}
@@ -66,11 +66,15 @@
                 <div id="mold_files_list" class="col-md-5">
                 </div>
             </div>
-            <div id="dropbox_button" style="display: none;" class="row">
-                <div style="width: 180px; opacity:0.5; margin-left: 15px;">
-                    <a class="btn btn-block btn-social btn-dropbox btn-xs">
-                        <i class="fa fa-dropbox"></i> Посмотреть на Dropbox
-                    </a>
+            <div class='row'>
+                <div style="width: 200px;">
+                    <div id="dropbox_button" style="display: none;">
+                        <div style="width: 180px; opacity:0.5; margin-left: 15px;">
+                            <a class="btn btn-block btn-social btn-dropbox btn-xs">
+                                <i class="fa fa-dropbox"></i> Посмотреть на Dropbox
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <style>
@@ -226,8 +230,8 @@
     </div>
 
     <script>
-        var mold_folder = '{{ proc.vars.mold_number }}' + '. ' + '{{ proc.vars.mold_name }}';
-        var mold_files;
+        var mold_folder = "{{ proc.vars.mold_folder }}";
+        var mold_files = [];
 
         function get_upload_props(){
             var selected_option = $('#filename_select option:selected');
@@ -332,6 +336,7 @@
                 var field_val = field.val();
                 var field_label = $('label[for=' + field.attr('id') + ']').text();
                 text += '[' + field_label + ']\n' + field_val + '\n'
+                text = '\uFEFF' + text
             }
 
             var boundary = "---------------------------boundry";
@@ -370,7 +375,8 @@
                     url: "{{ MEDIA_URL }}/Dropbox/molds_documentation/" + mold_folder +'/спецификация.txt',
                     async: false
                  }).responseText;
-            string_data = string_data.substring(1);
+            string_data = string_data.substring(string_data.indexOf("["));
+            string_data = string_data.substring(1);  // one more for '['
             string_data = string_data.substring(0, string_data.length - 1);
             var split_text = string_data.split('\n[');
             for (var i = 0; i < split_text.length; i++) {
@@ -386,7 +392,7 @@
         function end_task(){
             write_spec();
             $.post('{% url "activeBPM:zip-folder-task-file" %}', {folder_path: mold_folder, csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation', task_id: '{{ task.id }}', instnc_id: '{{ proc.instnc_id }}', purpose: 'comment'});
-            //$('#main_task_form').submit();
+            $('#main_task_form').submit();
         }
 
         $(document).ready(function(){
@@ -475,6 +481,7 @@
                 }
 
                 var fields = $('#tab_fields input').add('#tab_fields textarea');
+                $('#not_filled_fields').empty();
                 for (var i = 0; i < fields.length; i++){
                      var field = $(fields[i])
                      var field_val = field.val();
@@ -494,7 +501,7 @@
             });
 
             $('#dropbox_button').click(function(){
-                window.open('https://www.dropbox.com/home/{{ proc.vars.mold_folder }}');
+                window.open('https://www.dropbox.com/home/molds_documentation/{{ proc.vars.mold_folder }}');
             })
 
             $('#fields_fill_button_div').click(function(e) {

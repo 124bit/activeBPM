@@ -1,2 +1,88 @@
-{% extends 'activeBPM/proc_templates/default_process/proc_init_default.html' %}
+{% extends 'activeBPM/proc_templates/default_process/process_init_default.html' %}
 {% load activeBPM_tags %}
+{% load moldsDev_tags %}
+
+{% block main_form_fields %}
+
+    <div class='row' style="margin-top:20px;">
+        <div class="col-md-12"><label>Выберите исполнителя:</label></div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <select class="form-control" name='worker_select' id='worker_select' style="min-width: 330px; margin-left: 20px;">
+                    <!--<option value="designers_group" >Конструкторский отдел (любой сотрудник)</option>-->
+                    {% get_group_members 'designers' as designers %}
+                    {% for designer in designers %}
+                        <option value="{{ designer.id }}" >{{ designer.firstName }} {{ designer.lastName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+         </div>
+    </div>
+
+    <div class='row' style="margin-top:20px;">
+        <div class="col-md-12"><label>Проверка требуется?</label></div>
+        <div style="margin-left:30px;">
+            <div class="radio">
+                <label>
+                    <input type="radio" name="check_state" value="check_not_needed" id="check_state_false" checked>
+                    Нет
+                </label>
+            </div>
+            <div class="radio" style="margin-left: 30px;">
+                <label>
+                    <input type="radio" name="check_state" value="check_needed" id="check_state_true">
+                    Да
+                </label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class='row' style="margin-top:20px; display: false;" id="on_check_state_true">
+        <div class="col-md-12"><label>Выберите проверяющего:</label></div>
+        <div class="col-md-12">
+            <div class="form-group">
+                <select class="form-control" name='checker_select' id='checker_select' style="min-width: 330px; margin-left: 20px;">
+                    <!--<option value="technologists_group" >Технологи (любой сотрудник)</option>-->
+                    {% get_group_members 'technologists' as technologists %}
+                    {% for technolog in technologists %}
+                        <option value="{{ technolog.id }}" >{{ technolog.firstName }} {{ technolog.lastName }}</option>
+                    {% endfor %}
+                    <option value="124bit">Юлий Бройде</option>
+                </select>
+            </div>
+         </div>
+    </div>
+
+    <hr>
+
+
+    <script>
+        $(document).ready(function(){
+            $('#check_state_false').click(function() {$('#on_check_state_true').hide();});
+            $('#check_state_true').click(function() {$('#on_check_state_true').show();});
+            $('#check_state_false').click();
+
+            $('#check_copy_false').click(function() {$('#on_check_copy_true').hide();});
+            $('#check_copy_true').click(function() {$('#on_check_copy_true').show();});
+            $('#check_copy_false').click();
+
+//            $('#folder_select').change(function() {
+//                var folder_name = this.value;
+//                folder_name = folder_name.split(' (')[0];
+//
+//                try {
+//                    var mold_number = folder_name.split('. ')[0];
+//                    var mold_name = folder_name.split('. ')[1];
+//
+//                    $('#mold_name').val(mold_name);
+//                    $('#mold_number').val(mold_number);
+//                }
+//                catch(e){}
+//            });
+
+        });
+    </script>
+{%  endblock %}
+
+{% block comment_label %}Комментарий {% get_group_members 'technologists' as technologists %}{% if request.user.login not in technologists %}(укажите нужную форму){% endif %}:{% endblock %}

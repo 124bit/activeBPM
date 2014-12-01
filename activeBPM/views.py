@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import os
 import ntpath
 import json
-
+import time
 template_folder = 'activeBPM'
 proc_dashbord_template = os.path.join(template_folder, 'proc_dashbord.html')
 all_proc_template = os.path.join(template_folder, 'all_proc.html')
@@ -19,8 +19,8 @@ proc_control_template = os.path.join(template_folder, 'proc_control.html')
 proc_status_template = os.path.join(template_folder, 'proc_base.html')
 task_template = os.path.join(template_folder, 'task.html')
 proc_init_template = os.path.join(template_folder, 'proc_base.html')
-category = 'Molds development'
-forms_module = process_forms_default
+category = 'molds_development'
+from activeBPM import molds_documentation_forms as forms_module
 folders_paths = {'molds_documentation': os.path.join(settings.MEDIA_ROOT, 'Dropbox/molds_documentation/')}
 
 
@@ -64,23 +64,23 @@ def proc_dashboard_view(request):
 
 @login_required()
 def all_proc_view(request):
-    from activeBPM.tasks import new_task_sms
-    new_task_sms()
-    return HttpResponse('ok')
-    # rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
-    #
-    # active_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-    #                                                                         instnc_state='active')
-    # suspended_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-    #                                                                         instnc_state='suspended')
-    # finished_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
-    #                                                                         instnc_state='finished')
-    # tmpl_dict = {
-    #     'active_proc_table': active_proc_table,
-    #     'finished_proc_table': finished_proc_table,
-    #     'suspended_proc_table': suspended_proc_table
-    # }
-    # return render(request, all_proc_template, tmpl_dict)
+    #from activeBPM.tasks import new_task_sms
+    #new_task_sms()
+    #return HttpResponse('ok')
+    rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
+
+    active_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
+                                                                            instnc_state='active')
+    suspended_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
+                                                                            instnc_state='suspended')
+    finished_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
+                                                                            instnc_state='finished')
+    tmpl_dict = {
+        'active_proc_table': active_proc_table,
+        'finished_proc_table': finished_proc_table,
+        'suspended_proc_table': suspended_proc_table
+    }
+    return render(request, all_proc_template, tmpl_dict)
 
 
 @login_required()
@@ -93,6 +93,7 @@ def proc_status_view(request):
 
 
 #TODO check if task is a task of right user and process is active
+#TODO simplify
 @login_required()
 def task_view(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
@@ -108,12 +109,31 @@ def task_view(request):
         except AttributeError:
             task_form_class = getattr(process_forms_default, 'TaskDefault')
     if request.method == 'POST':
+        admin_userids = rest_client.get_group_userids_by_group_name('admin')
         task_form = task_form_class(request.POST)
         if task_form.is_valid():
             data = task_form.cleaned_data
-            rest_client.create_task_vars(task_id, data)
+            rest_client.set_proc_vars(proc_instnc_id, data)
             rest_client.complete_task(task_id)
-            return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
+            task_form.after_complete()
+            if request.user.bpmsuser.login in admin_userids:
+                assignee_task_table = rest_client.get_tasks_info()
+            else:
+                assignee_task_table = rest_client.get_tasks_info(assignee=request.user.bpmsuser.login)
+
+            next_tasks = [task for task in assignee_task_table if task['proc_instnc_id'] == proc_instnc_id]
+            if len(next_tasks) == 1:
+                next_task_id = next_tasks[0]['id']
+                return HttpResponseRedirect(reverse("activeBPM:process-task")
+                                     + '?instnc_id=%s&task_id=%s' % (proc_instnc_id, next_task_id))
+            else:
+                return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
+        else:
+            if request.user.bpmsuser.login in admin_userids:
+                errors = task_form.errors
+                return HttpResponse(str(errors))
+            else:
+                pass #error for users
     else:
         task_form = task_form_class()
     proc_template_folder = os.path.join(template_folder, 'proc_templates', proc['def_key'], '')
@@ -131,7 +151,8 @@ def task_view(request):
 
 
 #TODO init files loading works incorrect. Need right init behavior in process history and in file uploading
-#upload with nowtime and then update key to process instance id
+#TODO simplify
+#upload with nowtime and then update key to process instance id - bed idea
 @login_required()
 def proc_init_view(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
@@ -147,6 +168,7 @@ def proc_init_view(request):
             task_form_class = getattr(process_forms_default, 'ProcessInitDefault')
     if request.method == 'POST':
         task_form = task_form_class(request.POST)
+        admin_userids = rest_client.get_group_userids_by_group_name('admin')
         if task_form.is_valid():
             data = task_form.cleaned_data
             #data['worker'] = '124bit'
@@ -156,7 +178,24 @@ def proc_init_view(request):
             for task_file in task_files:
                 task_file.key = proc_instnc_id + '_init'
                 task_file.save()
-            return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
+            task_form.after_complete()
+            if request.user.bpmsuser.login in admin_userids:
+                assignee_task_table = rest_client.get_tasks_info()
+            else:
+                assignee_task_table = rest_client.get_tasks_info(assignee=request.user.bpmsuser.login)
+            next_tasks = [task for task in assignee_task_table if task['proc_instnc_id'] == proc_instnc_id]
+            if len(next_tasks) == 1:
+                next_task_id = next_tasks[0]['id']
+                return HttpResponseRedirect(reverse("activeBPM:process-task")
+                                     + '?instnc_id=%s&task_id=%s' % (proc_instnc_id, next_task_id))
+            else:
+                return HttpResponseRedirect(reverse("activeBPM:process-status") + '?instnc_id=%s' % proc_instnc_id)
+        else:
+            if request.user.bpmsuser.login in admin_userids:
+                errors = task_form.errors
+                return HttpResponse(str(errors))
+            else:
+                pass #error for users
     else:
         task_form = task_form_class()
     proc_template_folder = os.path.join(template_folder, 'proc_templates', proc['def_key'], '')
@@ -373,6 +412,6 @@ def zip_folder_task_file(request):
         task_file.save()
     os.remove(zip_file_path)
     os.rmdir(tempr_folder)
-    if not os.listdir(temp_folder):
-        os.rmdir(temp_folder)
+    #if not os.listdir(temp_folder):
+    #    os.rmdir(temp_folder)
     return HttpResponse('ok')

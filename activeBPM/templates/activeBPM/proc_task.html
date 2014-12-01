@@ -7,30 +7,30 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     {% block task_heading %}
-                        <h3> Задача: <i>{{ task.name }}</i></h3>
-                        <h5> Форма: <i>{{ task.vars.mold_name }} {{ task.vars.mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if task.state == 'assigned' %}взято в работу {{ task.assignee }}&nbsp;&nbsp;&nbsp;{% elif task.state == 'unassigned' %}Назначено группе {{ task.groups.0.name|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task.statt == 'finished' %}окончено {{ task.assignee }}{% endif %}{% if task.suspended %}(процесс приостановлен){% endif %}</i>
+                        <h4> Задача: <i>{{ task.name }}</i></h4>
+                        <p> Статус: <i>{% if task.state == 'assigned' %}Взято в работу. {{ task.assignee }}&nbsp;&nbsp;&nbsp;{% elif task.state == 'started' %}Назначено группе {{ task.groups.0.name|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task.state == 'finished' %}Окончено {{ task.assignee }}{% endif %}{% if task.suspended %}(процесс приостановлен){% endif %}</i>
                         {% if task.state == 'assigned' and not task.suspended %}
+                            <span class="btn-group btn-group-xs">
+                                <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ task.id }}').submit();">Отказаться</button>
+                            </span>
                             <form action="{% url 'activeBPM:task-control' %}" method="post" id='unassign_{{ task.id }}' style="display:none;">
                                 {% csrf_token %}
                                 <input type="hidden" name="task_id" value="{{ task.id }}"/>
                                 <input type="hidden" name="action" value="unassign"/>
                             </form>
-                            <div class="btn-group btn-group-xs">
-                                <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ task.id }}').submit();">Отказаться</button>
-                            </div>
                         {%  elif task.state == 'started' and not task.suspended %}
+                            <span class="btn-group btn-group-xs">
+                                <button class="btn btn-success" type="button" onclick="$('#assign_{{ task.id }}').submit();">начать</button>
+                            </span>
                             <form action="{% url 'activeBPM:task-control' %}" method="post" id='assign_{{ task.id }}' style="display:none;">
                                 {% csrf_token %}
                                 <input type="hidden" name="instnc_id" value="{{ task.proc_instnc_id }}"/>
                                 <input type="hidden" name="task_id" value="{{ task.id }}"/>
                                 <input type="hidden" name="action" value="assign"/>
                             </form>
-                            <div class="btn-group btn-group-xs">
-                                <button class="btn btn-success" type="button" onclick="$('#assign_{{ task.id }}').submit();">начать</button>
-                            </div>
                         {%  endif %}
-                        </h5>
-                        {% if task.descr %}<p> {{ task.descr }} </p> {% endif %}
+                        </p>
+                        {% if task.descr %}<p> Описание: <i>{{ task.descr }}</i> </p> {% endif %}
                     {% endblock %}
                 </div>
                 <div class="panel-body">
@@ -60,7 +60,7 @@
                                             <div class="row" style="margin-top:20px;">
                                                 <div class="col-md-5">
                                                     <div class="form-group">
-                                                        <label for="id_task_comment">Комментарий{% if task %}(обязателен){%  endif %}:</label>
+                                                        <label for="id_task_comment">{% block comment_label %}Комментарий{% if task %}(обязателен){%  endif %}:{% endblock %}</label>
                                                         <textarea id="id_task_comment" class="form-control" rows="5" name="task_comment" cols="40" {% if task %}required{% endif %}>{% if task %}Утверждаю, со всем согласен.{% endif %}</textarea>
                                                         <span class="help-block">{{ task_form.task_comment.errors }}</span>
                                                     </div>
@@ -68,7 +68,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-2 form-group">
-                                                    <label for="task_comment_files">Файлы комментария:</label>
+                                                    <label for="task_comment_files">{% block comment_files_label %}Файлы комментария:{% endblock %}</label>
                                                     <span class="btn btn-default fileinput-button">
                                                         <i class="glyphicon glyphicon-plus"></i>
                                                         <span>Выберите файлы</span>
@@ -144,7 +144,7 @@
                                 {% endblock %}
                                 {% csrf_token %}
                                 <input type="hidden" name="instnc_id" value='{{ task.proc_instnc_id }}' />
-                                <input type="hidden" name="task_id" value='{{ task.task_id }}' />
+                                <input type="hidden" name="task_id" value='{{ task.id }}' />
                             </form>
                         {%  endif %}
                     {% endblock %}

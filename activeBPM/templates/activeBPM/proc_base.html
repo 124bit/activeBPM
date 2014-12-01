@@ -11,9 +11,9 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         {% block process_heading %}
-                            <h3> Процесс: <i>{{ proc.name }}</i></h3>
-                            <h5> Форма: <i>{{ proc.vars.mold_name }} {{ proc.vars.mold_number }}</i> &nbsp;&nbsp;&nbsp; Статус: <i>{% if proc.state == 'active' %}активен{% elif proc.state == 'suspended' %}приостановлен{% elif proc.state == 'finished' %}окончен{% endif %}</i></h5>
-                            {% if proc.descr %}<p> {{ proc.descr }} </p>{% endif %}
+                            <h4>Процесс:<i> {{ proc.name }} {{ proc.vars.proc_individ_descr }}</i></h4>
+                            <p> Статус: <i>{% if proc.state == 'active' %}Активен{% elif proc.state == 'suspended' %}приостановлен{% elif proc.state == 'finished' %}Окончен{% endif %}</i></p>
+                            {% if proc.descr %}<p>Описание: <i>{{ proc.descr }} </i></p>{% endif %}
                         {% endblock %}
                     </div>
                     {% block process_diagram %}
@@ -58,11 +58,11 @@
                             var show_task = function  () {
                                 {% if proc.state == 'finished' %}
 
-                                    $('g[data-element-id="end_event"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
-                                    $('g[data-element-id="end_event"]').find('.djs-visual circle').attr('fill', '#FFFF00')
+                                    $('g[data-element-id="endevent"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
+                                    $('g[data-element-id="endevent"]').find('.djs-visual circle').attr('fill', '#FFFF00')
                                 {% elif not proc.state %}
-                                    $('g[data-element-id="start_event"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
-                                    $('g[data-element-id="start_event"]').find('.djs-visual circle').attr('fill', '#FFFF00')
+                                    $('g[data-element-id="startevent"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
+                                    $('g[data-element-id="startevent"]').find('.djs-visual circle').attr('fill', '#FFFF00')
                                 {% else %}
                                     active_tasks = [{% for task in proc.active_tasks %}'{{ task.def_key }}', {% endfor %}]
                                     for(var i = 0; i < active_tasks.length; i++) {

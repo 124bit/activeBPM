@@ -6,13 +6,11 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def active(context, url_name):
-    import re
     request = context['request']
     url = reverse(url_name)
     if url == request.path:
         return 'active'
     return ''
-
 
 
 #TODO if none
