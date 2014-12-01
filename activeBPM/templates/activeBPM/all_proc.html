@@ -10,7 +10,6 @@
                 <table class="table">
                     <tr>
                         <th>Процесс</th>
-                        <th>Форма</th>
                         <th>Задание</th>
                         <th>Задание получено</th>
                         <th>Задание взято в работу</th>
@@ -18,11 +17,7 @@
                     {% for proc in active_proc_table %}
                         <tr>
                             <td>
-                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
-                            </td>
-
-                            <td>
-                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>
                             </td>
 
                             <td>
@@ -69,7 +64,6 @@
                 <table class="table">
                     <tr>
                         <th>Процесс</th>
-                        <th>Форма</th>
                         <th>Задание</th>
                         <th>Задание получено</th>
                         <th>Задание взято в работу</th>
@@ -77,11 +71,7 @@
                     {% for proc in suspended_proc_table %}
                         <tr>
                             <td>
-                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
-                            </td>
-
-                            <td>
-                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>
                             </td>
 
                             <td>
@@ -128,18 +118,13 @@
                 <table class="table">
                     <tr>
                         <th>Процесс</th>
-                        <th>Форма</th>
                         <th>Длительность</th>
                         <th>Закончен</th>
                     </tr>
                     {% for proc in finished_proc_table %}
                         <tr>
                             <td>
-                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
-                            </td>
-
-                            <td>
-                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>
                             </td>
 
                             <td>

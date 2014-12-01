@@ -9,7 +9,6 @@
             <table class="table">
                 <tr>
                     <th>Задача</th>
-                    <th>Форма</th>
                     <th>Процесс</th>
                     <th>Получено</th>
                     <th></th>
@@ -20,10 +19,7 @@
                             <a href="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}">{{ task.name }}</a>
                         </td>
                         <td>
-                            {{ task.vars.mold_name }}
-                        </td>
-                        <td>
-                            {{ task.proc_name }}
+                            {{ task.proc_name }} {{ task.vars.proc_individ_descr }}
                         </td>
                         <td>
                             {{  task.start_time|format_date:"%d %b %H:%M" }}
@@ -35,7 +31,7 @@
                                     <input type="hidden" name="task_id" value="{{ task.id }}"/>
                                     <input type="hidden" name="action" value="unassign"/>
                                 </form>
-                                <div class="btn-group btn-group-sm">
+                                <div class="btn-group btn-group-xs" style="width: 170px;">
                                     <button class="btn btn-success" type="button" onclick="window.location = '{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}';">Продолжить</button>
                                     <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ task.id }}').submit();">Отказаться</button>
                                 </div>
@@ -74,7 +70,7 @@
         </div>
     </div>
 </div>
-
+    <hr>
 
 <div class="row">
     <div class='col-md-12'>
@@ -83,7 +79,6 @@
             <table class="table">
                 <tr>
                     <th>Процесс</th>
-                    <th>Форма</th>
                     <th>Задание</th>
                     <th>Задание получено</th>
                     <th>Задание взято в работу</th>
@@ -91,11 +86,7 @@
                 {% for proc in active_proc_table %}
                     <tr>
                         <td>
-                            <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
-                        </td>
-
-                        <td>
-                            {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                            <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>
                         </td>
 
                         <td>
@@ -146,19 +137,14 @@
             <table class="table">
                 <tr>
                     <th>Процесс</th>
-                    <th>Форма</th>
                     <th>Длительность</th>
                     <th>Закончен</th>
                 </tr>
                 {% for proc in finished_proc_table %}
-                    {%  if forloop.counter < 5 %}
+                    {%  if forloop.counter <= 3 %}
                         <tr>
                             <td>
-                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }}</a>
-                            </td>
-
-                            <td>
-                                {{ proc.vars.mold_number }} {{ proc.vars.mold_name }}
+                                <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>
                             </td>
 
                             <td>
