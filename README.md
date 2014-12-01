@@ -8,9 +8,11 @@ ActiveBPM
 <li>Easy task-form creation using set of templates and django template system.</li>
 <li>Easy interface customization for different positions using django templates and twitter bootstrap.</li>
 <li>Convenient Business-process creation, participation, controlling and monitoring.</li>
+<li>Customizable notification system (alerts by SMS and email).</li>
 <li>BPMN 2.0 processes visualisation using bpmn.io.</li>
 <li>Using Dropbox as documentation storage.</li>
-<li>Comments system and documentation snapshot system for any task</li>
+<li>Comments system and documentation snapshot system for any task.</li>
+<li>After long development, theoretically, it can become a stand-alone BPM package that allows customization and is suitable for mid-sized companies.</li>  
 </ul>
 <br>
 <hr>
