@@ -1,0 +1,86 @@
+{% extends 'activeBPM/proc_templates/default_process/task_default.html' %}
+{% load activeBPM_tags %}
+
+{% block main_form_fields %}
+    <div class='row'>
+        <div class="col-md-12"><label>Файлы формы:</label></div>
+        <div class="col-md-12">
+            <div style="margin-left: 20px;" id="mold_files_list"></div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div style="width: 200px;">
+            <div id="dropbox_button" style="display: none;">
+                <div style="width: 180px; opacity:0.5; margin-left: 15px;">
+                    <a class="btn btn-block btn-social btn-dropbox btn-xs">
+                        <i class="fa fa-dropbox"></i> Посмотреть на Dropbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <style>
+        @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css);
+
+        .btn-dropbox{color:#fff;background-color:#1087dd;border-color:rgba(0,0,0,0.2)}.btn-dropbox:hover,.btn-dropbox:focus,.btn-dropbox:active,.btn-dropbox.active,.open .dropdown-toggle.btn-dropbox{color:#fff;background-color:#0d70b7;border-color:rgba(0,0,0,0.2)}
+    .btn-dropbox:active,.btn-dropbox.active,.open .dropdown-toggle.btn-dropbox{background-image:none}
+    .btn-dropbox.disabled,.btn-dropbox[disabled],fieldset[disabled] .btn-dropbox,.btn-dropbox.disabled:hover,.btn-dropbox[disabled]:hover,fieldset[disabled] .btn-dropbox:hover,.btn-dropbox.disabled:focus,.btn-dropbox[disabled]:focus,fieldset[disabled] .btn-dropbox:focus,.btn-dropbox.disabled:active,.btn-dropbox[disabled]:active,fieldset[disabled] .btn-dropbox:active,.btn-dropbox.disabled.active,.btn-dropbox[disabled].active,fieldset[disabled] .btn-dropbox.active{background-color:#1087dd;border-color:rgba(0,0,0,0.2)}
+        .btn-social{position:relative;padding-left:44px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.btn-social :first-child{position:absolute;left:0;top:0;bottom:0;width:32px;line-height:34px;font-size:1.6em;text-align:center;border-right:1px solid rgba(0,0,0,0.2)}
+        .btn-social.btn-sm{padding-left:38px}.btn-social.btn-sm :first-child{line-height:28px;width:28px;font-size:1.4em}
+        .btn-social.btn-xs{padding-left:30px}.btn-social.btn-xs :first-child{line-height:20px;width:20px;font-size:1.2em}
+    </style>
+
+    <script>
+        var mold_folder = "{{ proc.vars.mold_folder }}";
+        var mold_files;
+        function get_mold_files() {
+            $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
+                        $('#mold_files_list').html('');
+                        $('#dropbox_button').css('display', 'none');
+                        for (var i = 0; i < data.length; i++)
+                        {
+                            var href_str = 'href="{{ MEDIA_URL }}' +'Dropbox/molds_documentation/'+ mold_folder + '/' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
+                            var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['folder_path']+ '/'+data[i]['name']+'</a></p>';
+                            $('#mold_files_list').append(append_str);
+                        }
+                        if (data.length>0) $('#dropbox_button').css('display', 'block');
+                        mold_files = data;
+                    });
+        }
+
+        $(document).ready(function(){
+            $('#dropbox_button').click(function(){
+                window.open('https://www.dropbox.com/home/molds_documentation/{{ proc.vars.mold_folder }}');
+            });
+            get_mold_files();
+
+
+            $('#task_end_button').click(function(e){
+                e.preventDefault()
+                $('#main_task_form').append('<input type="hidden" name="documentation_valid" value="False" />');
+                $('#main_task_form').submit();
+            });
+
+            $('#task_end_button_2').click(function(e){
+                e.preventDefault()
+                $('#main_task_form').append('<input type="hidden" name="documentation_valid" value="True" />');
+                $('#main_task_form').submit();
+            });
+
+        });
+    </script>
+{% endblock %}
+{% block submit_button %}
+    <div class="row" style="margin-top:20px;">
+        <div class='col-md-3'>
+            <button id="task_end_button" class="btn btn-warning" type="submit">Документация не валидна</button>
+        </div>
+        <div class='col-md-2'>
+            <button style="margin-left: -25px;" id="task_end_button_2" class="btn btn-success" type="submit">Документация валидна</button>
+        </div>
+    </div>
+{% endblock %}
