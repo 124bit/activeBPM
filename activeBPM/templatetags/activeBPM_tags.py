@@ -44,7 +44,7 @@ def format_delta(delta):
             minute_str = '< 1 минуты'
         else:
             minute_str = ''
-        return day_str + minute_str + hour_str
+        return day_str + hour_str + minute_str
     else:
         return '-'
 

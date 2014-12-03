@@ -24,7 +24,7 @@
                                 {% for task in proc.active_tasks %}
                                     {{ task.name }}
                                     {% if task.assignee %}
-                                        (взято {{ task.assignee }})
+                                        (взято {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }})
                                     {% else %}
                                         (назначено {% for group in task.groups %}
                                             {{ group.name|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
@@ -78,7 +78,7 @@
                                 {% for task in proc.active_tasks %}
                                     {{ task.name }}
                                     {% if task.assignee %}
-                                        (взято {{ task.assignee }})
+                                        (взято {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }})
                                     {% else %}
                                         (назначено {% for group in task.groups %}
                                             {{ group.name|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})

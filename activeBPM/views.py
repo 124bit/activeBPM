@@ -37,9 +37,13 @@ def proc_dashboard_view(request):
     rest_client = ActivityREST(request.user.bpmsuser.login, request.user.bpmsuser.password)
     active_proc_table = rest_client.get_proc_instncs_info_by_category(category, def_state='active',
                                                                             instnc_state='active')
-    finished_proc_table = reversed(rest_client.get_proc_instncs_info_by_category(category,
+
+    #TODO fix: not latest two from every latest def, but simply latest two
+    finished_proc_table = rest_client.get_proc_instncs_info_by_category(category,
                                                                                        def_state='active',
-                                                                                       instnc_state='finished'))
+                                                                                       instnc_state='finished',
+                                                                                       quantity_per_def=2,
+                                                                                       latest_def=True)
 
     admin_userids = rest_client.get_group_userids_by_group_name('admin')
     if request.user.bpmsuser.login in admin_userids:
@@ -270,7 +274,7 @@ def var_control(request):
         task_vars = {}
         for name, value in request.POST.items():
             if name.startswith('task_variables'):
-                var_name = name.lstrip('task_variables[').rstrip(']')
+                var_name = name[15:-1]
                 task_vars[var_name] = value
         rest_client.set_task_vars(task_id, task_vars)
         return HttpResponse('ok')
@@ -403,7 +407,7 @@ def zip_folder_task_file(request):
     zip_file_path = os.path.join(tempr_folder, 'снимок_папки.zip')
     if not os.path.exists(tempr_folder):
         os.makedirs(tempr_folder)
-    zipf = zipfile.ZipFile(zip_file_path, 'w')
+    zipf = zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED)
     zipdir(folder_path, zipf)
     zipf.close()
     with open(zip_file_path, 'rb') as outfile:

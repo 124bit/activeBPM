@@ -93,6 +93,8 @@ class ActivityREST():
                                     for model in task_comment_files]
         return task_comment_files_props
 
+
+    #add user_info
     def get_task_info(self, task_id):
         props = {}
         props['id'] = task_id
@@ -102,6 +104,7 @@ class ActivityREST():
         props['descr'] = historic_task['description']
         props['groups'] = self.get_groups_info_by_task_id(props['id'])
         props['assignee'] = historic_task['assignee']
+        props['assignee_profile'] = self.get_user(props['assignee'])
         props['parent_task_id'] = historic_task['parentTaskId']
         props['start_time'] = self.date_adapt(historic_task['startTime'])
         if historic_task['claimTime']:
@@ -263,12 +266,13 @@ class ActivityREST():
         props['instnc_id'] = instnc_id
         historic_instnc = self.get_proc_historic_instnc(props['instnc_id'])
         props['initiator'] = historic_instnc['startUserId']
+        props['initiator_profile'] = self.get_user(props['initiator'])
         props['def_id'] = historic_instnc['processDefinitionId']
         props['vars'] = self.rest_vars_to_dict(historic_instnc['variables'])
         props['start_time'] = self.date_adapt(historic_instnc['startTime'])
         props['end_time'] = self.date_adapt(historic_instnc['endTime'])
         if props['end_time']:
-            props['full_time'] = props['start_time'] - props['end_time']
+            props['full_time'] = props['end_time'] - props['start_time']
         else:
             props['full_time'] = None
         if historic_instnc['endTime']:
@@ -283,12 +287,14 @@ class ActivityREST():
 
         init_task = {'id': props['instnc_id'] + '_init',  #maybe put in get tasks
                      'name': 'Начало процесса',
+                     'def_key': 'startevent',
                      'start_time': None,
                      'end_time': props['start_time'],
                      'assign_time': None,
                      'work_time': None,
                      'full_time': None,
                      'assignee': props['initiator'],
+                     'assignee_profile': props['initiator_profile'],
                      'vars': {'task_comment': props['vars']['task_comment']},
                      'comment_files': self.get_task_files_props('init', props['instnc_id'], 'comment')}
 
@@ -297,10 +303,12 @@ class ActivityREST():
         props['active_tasks'] = [task for task in instnc_tasks if task['state'] != 'finished']
         return props
 
-    def get_proc_instncs_ids_by_def_id(self, def_id, instnc_state=None):
+    def get_proc_instncs_ids_by_def_id(self, def_id, instnc_state=None, quantity_per_def=None):
         proc_instncs_query = {'processDefinitionId': def_id}
         if instnc_state == 'finished':
             proc_instncs_query['finished'] = True
+            if quantity_per_def:
+                proc_instncs_query.update({'size': quantity_per_def,  'order': 'desc', 'sort': 'endTime'})
             instncs_req = self.session.get(self.historic_proc_instncs_url, params=proc_instncs_query)
         else:
             if instnc_state == 'suspended':
@@ -313,16 +321,22 @@ class ActivityREST():
         proc_instncs_ids = [proc_instnc['id'] for proc_instnc in proc_instncs]
         return proc_instncs_ids
 
-    def get_proc_instncs_ids_by_category(self, category=None, def_state=None, latest_def=None, instnc_state=None):
+    def get_proc_instncs_ids_by_category(self, category=None, def_state=None, latest_def=None,
+                                         instnc_state=None,
+                                         quantity_per_def=None):
         proc_defs_ids = self.get_proc_defs_ids_by_category(category, def_state, latest_def)
         proc_instncs_ids = []
         for def_id in proc_defs_ids:
-            proc_instncs_ids += self.get_proc_instncs_ids_by_def_id(def_id, instnc_state)
+            proc_instncs_ids += self.get_proc_instncs_ids_by_def_id(def_id, instnc_state, quantity_per_def)
         return proc_instncs_ids
 
-    def get_proc_instncs_info_by_category(self, category=None, def_state=None, instnc_state=None):
+    def get_proc_instncs_info_by_category(self, category=None, def_state=None, instnc_state=None,
+                                          quantity_per_def=None,
+                                          latest_def=None):
         proc_instncs_ids = self.get_proc_instncs_ids_by_category(category=category, def_state=def_state,
-                                                                 instnc_state=instnc_state)
+                                                                 instnc_state=instnc_state,
+                                                                 quantity_per_def=quantity_per_def,
+                                                                 latest_def=latest_def)
         proc_instncs_info = [self.get_proc_instnc_info(instnc_id) for instnc_id in proc_instncs_ids]
         return proc_instncs_info
 

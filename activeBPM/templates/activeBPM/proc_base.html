@@ -8,7 +8,7 @@
     {% block process_panel %}
         <div class='row'>
             <div class='col-md-12'>
-                <div class="panel panel-default">
+                <div class="panel panel-default" style="min-width: 420px;">
                     <div class="panel-heading">
                         {% block process_heading %}
                             <h4>Процесс:<i> {{ proc.name }} {{ proc.vars.proc_individ_descr }}</i></h4>
@@ -17,8 +17,11 @@
                         {% endblock %}
                     </div>
                     {% block process_diagram %}
-                        <div id="bp_canvas"></div>
-
+                        <div class='row'>
+                            <div class='col-md-12'>
+                                <div id="bp_canvas"></div>
+                            </div>
+                        </div>
                         <script>
                             (function(BpmnViewer, $) {
 
@@ -64,13 +67,13 @@
                                     $('g[data-element-id="startevent"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
                                     $('g[data-element-id="startevent"]').find('.djs-visual circle').attr('fill', '#FFFF00')
                                 {% else %}
-                                    active_tasks = [{% for task in proc.active_tasks %}'{{ task.def_key }}', {% endfor %}]
+                                    active_tasks = [{% for task in proc.active_tasks %}'{{ task.def_key }}', {% endfor %}];
                                     for(var i = 0; i < active_tasks.length; i++) {
                                         $('g[data-element-id="' + active_tasks[i] + '"]').find('.djs-visual rect').attr('fill', '#FFFF00').attr('fill-opacity','0.5');
                                     }
                                 {% endif %}
                                 {%  if task %}
-                                    $('g[data-element-id="' + '{{ task_def_key }}' + '"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
+                                    $('g[data-element-id="' + '{{ task.def_key }}' + '"]').find('.djs-outline').attr('stroke', 'Maroon').attr('stroke-dasharray', '5,5');
                                 {%  endif %}
                             }
                         </script>
@@ -100,7 +103,7 @@
                                 <td>{{ task.name }}</td>
                                 <td>
                                     {% if task.assignee %}
-                                        {{ task.assignee }}
+                                        {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }}
                                     {% else %}
                                 Назначено {% for group in task.groups %}
                                     {{ group.name|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %}, в роботу не принято
@@ -146,7 +149,7 @@
                                 {% for task in proc.finished_tasks %}
                                     <tr>
                                         <td>{{ task.name }}</td>
-                                        <td>{{ task.assignee }}</td>
+                                        <td>{{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }}</td>
                                         <td>{{ task.full_time|format_delta }}</td>
                                         <td>{{ task.end_time|format_date:"%H:%M %d %b %Y" }}</td>
                                         <td>{{ task.vars.task_comment }}</td>

@@ -5,27 +5,27 @@
 {% block main_form_fields %}
     <div class='row' style="margin-top:20px;">
         <div class="col-md-12"><label>Выберите папку:</label></div>
-        <div style="margin-left:30px;">
-            <div class="radio">
-                <label>
-                    <input type="radio" name="folder_state" value="new_folder" id="folder_state_new" checked>
-                    Папки еще нет (создать автоматически)
-                </label>
-            </div>
-            <div class="radio" style="margin-left: 30px;">
-                <label>
-                    <input type="radio" name="folder_state" value="old_folder" id="folder_state_old">
-                    Папка уже есть
-                </label>
-            </div>
+        <div class="col-md-12">
+                <div class="radio" style="width:200px; float:left; margin-left:30px;">
+                    <label>
+                        <input type="radio" name="folder_state" value="new_folder" id="folder_state_new">
+                        Папки еще нет<br> (создать автоматически)
+                    </label>
+                </div>
+                <div class="radio" style="width:120px; float:left; margin-top: 10px;">
+                    <label>
+                        <input type="radio" name="folder_state" value="old_folder" id="folder_state_old">
+                        Папка уже есть
+                    </label>
+                </div>
         </div>
     </div>
 
     <div class='row' style="margin-top:10px; display:none;" id="on_folder_state_old">
          <div class="col-md-12">
-            <div class="form-group" style="margin-left: 50px">
+            <div class="form-group">
                 <label for="folder_select" class="control-label">Выберите папку</label>
-                <select class="form-control" name='folder_select' id='folder_select' style="min-width: 220px; margin-left: 20px;">
+                <select class="form-control" name='folder_select' id='folder_select' style="width: 400px; margin-left: 20px;">
                     {% get_mold_folders  as mold_folders %}
                     {% for folder in mold_folders %}
                         <option value="{{ folder }}" >{{  folder }}</option>
@@ -37,15 +37,15 @@
     <div id="on_folder_state_new">
         <div class='row' style="margin-top:20px;">
             <div class="col-md-12"><label>Номер и название формы:</label></div>
-            <div class="col-md-12">
-                <div class="form-group" style="width: 185px;">
+            <div class="col-md-12" style="margin-top:10px;">
+                <div class="form-group" style="width: 180px; float: left; ">
                     <div class="input-group">
                         <div class="input-group-addon">№</div>
                         <input type="number" class="form-control" name="mold_number" min="100" max="9999" id="mold_number" placeholder='Номер формы' required>
                      </div>
                 </div>
-                <div class="form-group" style="margin-left: 20px;">
-                        <input type="text" class="form-control" style="width:280px;" name="mold_name" maxlength="100" id="mold_name" placeholder='Название формы' required>
+                <div class="form-group" style="margin-left: 20px; width:220px; float: left;">
+                        <input type="text" class="form-control" name="mold_name" maxlength="100" id="mold_name" placeholder='Название формы' required>
                 </div>
             </div>
         </div>
@@ -54,19 +54,19 @@
 
         <div class='row' style="margin-top:20px;">
             <div class="col-md-12"><label>Форма является копией другой формы?</label></div>
-            <div style="margin-left:30px;">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="check_copy" value="no_copy" id="check_copy_false" checked>
-                        Нет
-                    </label>
-                </div>
-                <div class="radio" style="margin-left: 30px;">
-                    <label>
-                        <input type="radio" name="check_copy" value="copy_exists" id="check_copy_true">
-                        Да
-                    </label>
-                </div>
+            <div class="col-md-12">
+                    <div class="radio" style="margin-left:30px; float:left;">
+                        <label>
+                            <input type="radio" name="check_copy" value="no_copy" id="check_copy_false" checked>
+                            Нет
+                        </label>
+                    </div>
+                    <div class="radio" style="margin-left: 30px; float:left; margin-top: 10px;">
+                        <label>
+                            <input type="radio" name="check_copy" value="copy_exists" id="check_copy_true">
+                            Да
+                        </label>
+                    </div>
             </div>
         </div>
 
@@ -122,7 +122,7 @@
 
 
 
-{% block form_attrs %}class="form-inline" action="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}" method="post"{% endblock %}
+{% block form_attrs %}action="{% url 'activeBPM:process-task' %}?instnc_id={{ task.proc_instnc_id }}&task_id={{ task.id }}" method="post"{% endblock %}
 
 
 

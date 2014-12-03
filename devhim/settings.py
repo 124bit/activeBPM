@@ -110,7 +110,7 @@ LOGIN_REDIRECT_URL = '/'
 #ENABLE_SILK = True
 #SILKY_META = True
 #SILKY_PYTHON_PROFILER = True
-#MIDDLEWARE_CLASSES =  ['silk.middleware.SilkyMiddleware'] + MIDDLEWARE_CLASSES
+#MIDDLEWARE_CLASSES = ['silk.middleware.SilkyMiddleware'] + MIDDLEWARE_CLASSES
 #INSTALLED_APPS += ['silk']
 
 #---email

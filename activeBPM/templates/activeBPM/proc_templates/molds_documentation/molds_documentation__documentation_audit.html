@@ -7,15 +7,14 @@
         <div class="col-md-12">
             <div style="margin-left: 20px;" id="mold_files_list"></div>
         </div>
-    </div>
-    <br>
-    <div class="row">
-        <div style="width: 200px;">
-            <div id="dropbox_button" style="display: none;">
-                <div style="width: 180px; opacity:0.5; margin-left: 15px;">
-                    <a class="btn btn-block btn-social btn-dropbox btn-xs">
-                        <i class="fa fa-dropbox"></i> Посмотреть на Dropbox
-                    </a>
+        <div class="col-md-12" style="margin-top: 10px;">
+            <div style="width: 200px;">
+                <div id="dropbox_button" style="display: none;">
+                    <div style="width: 180px; opacity:0.5;">
+                        <a class="btn btn-block btn-social btn-dropbox btn-xs">
+                            <i class="fa fa-dropbox"></i> Посмотреть на Dropbox
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,8 +47,14 @@
                             $('#mold_files_list').append(append_str);
                         }
                         if (data.length>0) $('#dropbox_button').css('display', 'block');
+                        else $('#mold_files_list').html('<p>Нет файлов</p>')
                         mold_files = data;
                     });
+        }
+
+        function end_task(){
+            $.post('{% url "activeBPM:zip-folder-task-file" %}', {folder_path: mold_folder, csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation', task_id: '{{ task.id }}', instnc_id: '{{ proc.instnc_id }}', purpose: 'comment'});
+            $('#main_task_form').submit();
         }
 
         $(document).ready(function(){
@@ -60,15 +65,15 @@
 
 
             $('#task_end_button').click(function(e){
-                e.preventDefault()
+                e.preventDefault();
                 $('#main_task_form').append('<input type="hidden" name="documentation_valid" value="False" />');
-                $('#main_task_form').submit();
+                end_task();
             });
 
             $('#task_end_button_2').click(function(e){
-                e.preventDefault()
+                e.preventDefault();
                 $('#main_task_form').append('<input type="hidden" name="documentation_valid" value="True" />');
-                $('#main_task_form').submit();
+                end_task();
             });
 
         });
@@ -76,11 +81,9 @@
 {% endblock %}
 {% block submit_button %}
     <div class="row" style="margin-top:20px;">
-        <div class='col-md-3'>
-            <button id="task_end_button" class="btn btn-warning" type="submit">Документация не валидна</button>
-        </div>
-        <div class='col-md-2'>
-            <button style="margin-left: -25px;" id="task_end_button_2" class="btn btn-success" type="submit">Документация валидна</button>
+        <div class='col-md-12'>
+            <button style="width: 200px;" id="task_end_button" class="btn btn-warning" type="submit">Документация не валидна</button>
+            <button style="width: 200px; margin-left:20px" id="task_end_button_2" class="btn btn-success" type="submit">Документация валидна</button>
         </div>
     </div>
 {% endblock %}

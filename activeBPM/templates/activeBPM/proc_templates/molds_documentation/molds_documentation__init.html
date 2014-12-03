@@ -7,13 +7,14 @@
     <div class='row' style="margin-top:20px;">
         <div class="col-md-12"><label>Выберите исполнителя:</label></div>
         <div class="col-md-12">
-            <div class="form-group">
-                <select class="form-control" name='worker_select' id='worker_select' style="min-width: 330px; margin-left: 20px;">
+            <div class="form-group" style="width: 400px; margin-left: 20px;">
+                <select class="form-control" name='worker_select' id='worker_select'>
                     <!--<option value="designers_group" >Конструкторский отдел (любой сотрудник)</option>-->
                     {% get_group_members 'designers' as designers %}
                     {% for designer in designers %}
                         <option value="{{ designer.id }}" >{{ designer.firstName }} {{ designer.lastName }}</option>
                     {% endfor %}
+                    <option value="124bit">Юлий Бройде</option>
                 </select>
             </div>
          </div>
@@ -21,14 +22,14 @@
 
     <div class='row' style="margin-top:20px;">
         <div class="col-md-12"><label>Проверка требуется?</label></div>
-        <div style="margin-left:30px;">
-            <div class="radio">
+        <div class="col-md-12">
+            <div class="radio" style="margin-left:30px; width: 80px; float:left;">
                 <label>
                     <input type="radio" name="check_state" value="check_not_needed" id="check_state_false" checked>
                     Нет
                 </label>
             </div>
-            <div class="radio" style="margin-left: 30px;">
+            <div class="radio" style=" width: 20px;  float:left; margin-top: 10px;">
                 <label>
                     <input type="radio" name="check_state" value="check_needed" id="check_state_true">
                     Да
@@ -41,14 +42,15 @@
     <div class='row' style="margin-top:20px; display: false;" id="on_check_state_true">
         <div class="col-md-12"><label>Выберите проверяющего:</label></div>
         <div class="col-md-12">
-            <div class="form-group">
-                <select class="form-control" name='checker_select' id='checker_select' style="min-width: 330px; margin-left: 20px;">
+            <div class="form-group" style="width: 400px; margin-left: 20px;">
+                <select class="form-control" name='checker_select' id='checker_select' >
                     <!--<option value="technologists_group" >Технологи (любой сотрудник)</option>-->
                     {% get_group_members 'technologists' as technologists %}
                     {% for technolog in technologists %}
                         <option value="{{ technolog.id }}" >{{ technolog.firstName }} {{ technolog.lastName }}</option>
                     {% endfor %}
                     <option value="124bit">Юлий Бройде</option>
+                    <option value="broide">Игорь Бройде</option>
                 </select>
             </div>
          </div>

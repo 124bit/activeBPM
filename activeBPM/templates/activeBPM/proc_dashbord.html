@@ -3,7 +3,7 @@
 
 {% block middle %}
 <div class="row">
-    <div class='col-md-8'>
+    <div class='col-md-12'>
         <div class="panel panel-default">
             <div class="panel-heading">Ваши задачи</div>
             <table class="table">
@@ -52,20 +52,23 @@
             </table>
         </div>
     </div>
-
-    <div class='col-md-4'>
+</div>
+<div class='row'>
+    <div class='col-md-12'>
         <div class="panel panel-default">
             <div class="panel-heading">Начать процесс</div>
             <div class="list-group">
-                {% for proc in available_proc_table %}
+                <div style="max-width: 600px;">
+                    {% for proc in available_proc_table %}
 
-                      <span class="list-group-item">
-                        <a href="{% url 'activeBPM:process-init' %}?def_id={{ proc.def_id }}" ><button class="btn  btn-success btn-xs pull-right"> начать </button></a>
-                        <h5 class="list-group-item-heading">{{ proc.name }}</h5>
-                        <p class="list-group-item-text"><small>{{ proc.descr }}</small></p>
-                      </span>
+                          <span class="list-group-item">
+                            <a href="{% url 'activeBPM:process-init' %}?def_id={{ proc.def_id }}" ><button class="btn  btn-success btn-sm pull-right"> начать </button></a>
+                            <h5 class="list-group-item-heading">{{ proc.name }}</h5>
+                            <p class="list-group-item-text"><small>{{ proc.descr }}</small></p>
+                          </span>
 
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
@@ -93,7 +96,7 @@
                             {% for task in proc.active_tasks %}
                                 {{ task.name }}
                                 {% if task.assignee %}
-                                    (взято {{ task.assignee }})
+                                    (взято {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }})
                                 {% else %}
                                     (назначено {% for group in task.groups %}
                                         {{ group.name|lower }}{% if not forloop.last %}, {% endif %}{%  endfor %})
@@ -141,7 +144,7 @@
                     <th>Закончен</th>
                 </tr>
                 {% for proc in finished_proc_table %}
-                    {%  if forloop.counter <= 3 %}
+                    {%  if forloop.counter <= 10 %}
                         <tr>
                             <td>
                                 <a href="{% url 'activeBPM:process-status' %}?instnc_id={{ proc.instnc_id }}">{{ proc.name }} {{ proc.vars.proc_individ_descr }}</a>

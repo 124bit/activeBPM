@@ -4,11 +4,11 @@
 {% block task_panel %}
     <div class = 'row'>
         <div class='col-md-12'>
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="min-width: 420px;">
                 <div class="panel-heading">
                     {% block task_heading %}
                         <h4> Задача: <i>{{ task.name }}</i></h4>
-                        <p> Статус: <i>{% if task.state == 'assigned' %}Взято в работу. {{ task.assignee }}&nbsp;&nbsp;&nbsp;{% elif task.state == 'started' %}Назначено группе {{ task.groups.0.name|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task.state == 'finished' %}Окончено {{ task.assignee }}{% endif %}{% if task.suspended %}(процесс приостановлен){% endif %}</i>
+                        <p> Статус: <i>{% if task.state == 'assigned' %}Взято в работу {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }}&nbsp;&nbsp;&nbsp;{% elif task.state == 'started' %}Назначено группе {{ task.groups.0.name|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task.state == 'finished' %}Окончено {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }}{% endif %}{% if task.suspended %}(процесс приостановлен){% endif %}</i>
                         {% if task.state == 'assigned' and not task.suspended %}
                             <span class="btn-group btn-group-xs">
                                 <button class="btn btn-danger" type="button" onclick="$('#unassign_{{ task.id }}').submit();">Отказаться</button>
@@ -42,10 +42,10 @@
                                     {% block form_fields %}
                                         {% block main_form_fields %}
                                             <div class="row">
-                                                <div class='col-md-7'>
+                                                <div class='col-md-12'>
                                                     {% for field in task_form %}
                                                         {% if field.name != 'task_comment' %}
-                                                            <div class="form-group">
+                                                            <div class="form-group" style="width: 420px;">
                                                                 {{ field.label_tag }}
                                                                 {{ field|add_attrs:'class:form-control' }}
                                                                 <span class="help-block">{{ field.errors }}</span>
@@ -58,8 +58,8 @@
                                         {%  endblock %}
                                         {% block comment_fields %}
                                             <div class="row" style="margin-top:20px;">
-                                                <div class="col-md-5">
-                                                    <div class="form-group">
+                                                <div class="col-md-12">
+                                                    <div class="form-group" style="width: 420px;">
                                                         <label for="id_task_comment">{% block comment_label %}Комментарий{% if task %}(обязателен){%  endif %}:{% endblock %}</label>
                                                         <textarea id="id_task_comment" class="form-control" rows="5" name="task_comment" cols="40" {% if task %}required{% endif %}>{% if task %}Утверждаю, со всем согласен.{% endif %}</textarea>
                                                         <span class="help-block">{{ task_form.task_comment.errors }}</span>
@@ -67,27 +67,27 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-2 form-group">
-                                                    <label for="task_comment_files">{% block comment_files_label %}Файлы комментария:{% endblock %}</label>
-                                                    <span class="btn btn-default fileinput-button">
-                                                        <i class="glyphicon glyphicon-plus"></i>
-                                                        <span>Выберите файлы</span>
-                                                        <input id="task_comment_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}" multiple>
-                                                     </span>
+                                                <div class="col-md-12 clearfix">
+                                                     <label style="float:left;" for="task_comment_files">{% block comment_files_label %}Файлы комментария:{% endblock %}</label>
                                                 </div>
-                                                <div class="col-md-3" style="margin-top:26px;">
-                                                    <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                                                <div class="col-md-12 clearfix">
+                                                    <div class="form-group" style="width: 190px; float:left;">
+                                                        <span class="btn btn-default fileinput-button">
+                                                            <i class="glyphicon glyphicon-plus"></i>
+                                                            <span>Выберите файлы</span>
+                                                            <input id="task_comment_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}" multiple>
+                                                         </span>
+                                                    </div>
+                                                    <div id='task_files_portal' style="width: 230px; float:left;">
+                                                        <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row" style="margin-top:20px;">
-                                                <div class="col-md-5">
-                                                    <div id="task_comment_file_progress" class="progress">
+                                                <div class="col-md-12" style="margin-top:5px;">
+                                                    <div id="task_comment_file_progress" class="progress" style="width:420px;">
                                                             <div class="progress-bar progress-bar-success"></div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div id="task_files" class="col-md-5">
+                                                <div id="task_files" class="col-md-12">
                                                 </div>
                                             </div>
                                             <hr>
@@ -113,6 +113,7 @@
 
                                                 $(document).ready(function() {
                                                     $('#task_comment_files').fileupload({
+                                                        dropZone: $('#task_files_portal'),
                                                         formData: {task_id: '{% if task %}{{ task.id }}{% else %}{{ init_task_id }}{% endif %}', instnc_id: '{{ proc.instnc_id }}', action: 'upload_task_file', purpose: 'comment', csrfmiddlewaretoken: '{{ csrf_token }}'},
                                                         autoUpload: true,
                                                         done: function () {
@@ -137,7 +138,9 @@
                                     {% block submit_button %}
                                         <div class="row" style="margin-top:20px;">
                                             <div class='col-md-12'>
-                                                <button id="task_end_button" class="btn btn-default" type="submit">Завершить задачу</button>
+                                                <div style="width:420px;">
+                                                    <button style="float:right;" id="task_end_button" class="btn btn-success" type="submit">Завершить задачу</button>
+                                                </div>
                                             </div>
                                         </div>
                                     {% endblock %}

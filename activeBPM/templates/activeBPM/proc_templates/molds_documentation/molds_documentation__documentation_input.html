@@ -10,60 +10,65 @@
     <div class='tab-content'>
         <div class='tab-pane active' id='tab_files'>
             <div class='row' style='margin-top: 20px;'>
-                <label class='contol-label col-md-2' for='filename_select' style='margin-top: 10px; margin-right: -35px;'>Добавить файл</label>
-                <div class='form-group' style='width:295px;'>
-                    <select class='form-control' id='filename_select'>
-                        <optgroup label='0. Техническое задание'>
-                            <option value='ТЗ'>ТЗ</option>
-                        </optgroup>
-                        <optgroup label='1. Изделие'>
-                            <option value='Модель изделия'>Модель изделия</option>
-                            <option value='Чертеж изделия'>Чертеж изделия</option>
-                        </optgroup>
-                        <optgroup label='2. Форма'>
-                            <option value='Модель формы'>Модель формы</option>
-                            <option value='Модель формы с обвязкой'>Модель формы с обвязкой</option>
-                            <option value='Чертеж формы'>Чертеж формы</option>
-                            <option value='Чертеж формы позиции'>Чертеж формы позиции</option>
-                        </optgroup>
-                        <optgroup label='3. Раскрой'>
-                            <option value='Деталировка *'>Деталировка *</option>
-                            <option value='Раскрой *'>Раскрой *</option>
-                        </optgroup>
-                        <optgroup label='4. Проектная документация'>
-                            <option value='Титульная страница'>Титульная страница</option>
-                            <option value='Чертеж изделия'>Чертеж изделия</option>
-                            <option value='Чертеж формы'>Чертеж формы</option>
-                            <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
-                            <option value='Деталировка'>Деталировка *</option>
-                        </optgroup>
-                        <optgroup id="other_optgroup" label='Другое'>
-                            <option value='Другой файл'>Другой файл</option>
-                        </optgroup>
-                    </select>
+                <div class="col-md-12">
+                    <label class='contol-label' for='filename_select' style='margin-top: 10px;  width: 125px; float: left;'>Добавить файл</label>
+                    <div class='form-group' style='width:295px; float: left;'>
+                        <select class='form-control' id='filename_select'>
+                            <optgroup value='0. Техническое задание' label='0. Техническое задание'>
+                                <option value='ТЗ'>ТЗ</option>
+                            </optgroup>
+                            <optgroup value='1. Изделие' label='1. Изделие'>
+                                <option value='Модель изделия'>Модель изделия</option>
+                                <option value='Чертеж изделия'>Чертеж изделия</option>
+                            </optgroup>
+                            <optgroup value='2. Форма' label='2. Форма'>
+                                <option value='Модель формы'>Модель формы</option>
+                                <option value='Модель формы с обвязкой'>Модель формы с обвязкой</option>
+                                <option value='Чертеж формы'>Чертеж формы</option>
+                                <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
+                                <option value='Чертеж формы позиции'>Чертеж формы позиции</option>
+                            </optgroup>
+                            <optgroup value='3. Раскрой' label='3. Раскрой'>
+                                <option value='Деталировка'>Деталировка *</option>
+                                <option value='Раскрой'>Раскрой *</option>
+                            </optgroup>
+                            <optgroup value='4. Проектная документация' label='4. Проектная документация (pdf)'>
+                                <option value='Титульная страница'>Титульная страница</option>
+                                <option value='Чертеж изделия'>Чертеж изделия</option>
+                                <option value='Чертеж формы'>Чертеж формы</option>
+                                <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
+                                <option value='Деталировка'>Деталировка *</option>
+                            </optgroup>
+                            <optgroup id="other_optgroup" value='Другое' label='Другое'>
+                                <option value='Другой файл'>Другой файл</option>
+                            </optgroup>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-2 form-group">
-                    <span class="btn btn-default fileinput-button">
-                        <i class="glyphicon glyphicon-plus"></i>
-                        <span>Выберите файлы</span>
-                        <input id="mold_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}">
-                     </span>
-                </div>
-                <div class="col-md-3" >
-                    <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                <div class="col-md-12">
+                    <div class="form-group" style="width:190px; float:left;">
+                        <span class="btn btn-default fileinput-button">
+                            <i class="glyphicon glyphicon-plus"></i>
+                            <span>Выберите файлы</span>
+                            <input id="mold_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}">
+                         </span>
+                    </div>
+                    <div id="mold_files_portal" style="width: 230px; float: left;" >
+                        <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                    </div>
                 </div>
             </div>
-            <div class="row" style="margin-top:20px;">
-                <div class="col-md-5">
-                    <div id="mold_file_progress" class="progress">
+            <div class="row" style="margin-top:5px;">
+                <div class="col-md-12">
+                    <div id="mold_file_progress" class="progress" style="width:420px;">
                             <div class="progress-bar progress-bar-success"></div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div id="mold_files_list" class="col-md-5">
+                <div id="mold_files_list" class="col-md-12">
                 </div>
             </div>
             <div class='row'>
@@ -92,7 +97,7 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">
+                            <button id='custom_folder_close' type="button" class="close" data-dismiss="modal">
                                 <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                             </button>
                             <h5 class="modal-title" id="myModalLabel">Введите папку и название файла (без расширения)</h5>
@@ -100,7 +105,7 @@
                         <div class="modal-body">
 
                                 <div class='row'>
-                                    <div class="col-md-5" style="margin-left: 5px;">
+                                    <div class="col-md-5" style="margin-left: 15px;">
                                         <div class="input-group">
                                             <div class="input-group-btn">
                                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Папка <span class="caret"></span></button>
@@ -140,51 +145,57 @@
         </div>
         <div class='tab-pane' id='tab_fields'>
             <div class="row" style="margin-top: 20px;">
-                <div id='fields_div' class="col-md-5">
-                    <div id="fields_fill_button_div"></div>
-                    <div class="form-group">
-                        <label for="buh_name">Бухгалетрское названия изделия (в документах, 1с)</label>
-                        <input type="text" class="form-control" id="buh_name">
-                    </div>
-                    <div class="form-group">
-                        <label for="expl">Назначение изделия и условия эксплуатации, для кого предназначено изделие (группы покупателей\компания)</label>
-                        <textarea cols="3" class="form-control" id="expl"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="colors">Цвета (основные)</label>
-                        <input type="text" class="form-control" id="colors">
-                    </div>
-                    <div class="form-group">
-                        <label for="zakladnie">Закладные (количество\тип\залиываются ли)</label>
-                        <textarea cols="3" class="form-control" id="zakladnie"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="detali">Обязательные комплектующие (крышки, баки, другие детали)</label>
-                        <textarea cols="3" class="form-control" id="detali"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="dop_izd">Дополнительные комплектные изделия, информация о комплекте</label>
-                        <textarea cols="3" class="form-control" id="dop_izd"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="spec_of_manuf">Специфика производства, обрезки, сборки, упаковки и хранения</label>
-                        <textarea cols="3" class="form-control" id="spec_of_manuf"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="qual_control">Процедура контроля качества (самые важные размеры, формы, плоскости)</label>
-                        <textarea cols="3" class="form-control" id="qual_control"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="weight">Вес формы (с обвязкой\без)</label>
-                        <input type="text" class="form-control" id="weight">
-                    </div>
-                    <div class="form-group">
-                        <label for="wall_thickn">Рекомендуемые веса и толщины стенок модификаций изделия, рекомендуемые режимы работы ротомашины</label>
-                        <textarea cols="3" class="form-control" id="wall_thickn"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="add_info">Дополнительная информация</label>
-                        <textarea cols="3" class="form-control" id="add_info"></textarea>
+                <div class="col-md-12">
+                    <div id='fields_div' style="width: 420px;">
+                        <div id="fields_fill_button_div"></div>
+                        <div class="form-group">
+                            <label for="buh_name">Бухгалетрское названия изделия (в документах, 1с)</label>
+                            <input type="text" class="form-control" id="buh_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="expl">Назначение изделия и условия эксплуатации, для кого предназначено изделие (группы покупателей\компания)</label>
+                            <textarea cols="3" class="form-control" id="expl"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="colors">Цвета (основные)</label>
+                            <input type="text" class="form-control" id="colors">
+                        </div>
+                        <div class="form-group">
+                            <label for="zakladnie">Закладные (количество\тип\залиываются ли)</label>
+                            <textarea cols="3" class="form-control" id="zakladnie"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="materials">Материалы для раскроя, материалы и примитивы для сборки, материалы для обвязки. Дополнительная информация о сборке.</label>
+                            <textarea cols="3" rows="4" class="form-control" id="materials"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Вес формы (с обвязкой\без)</label>
+                            <input type="text" class="form-control" id="weight">
+                        </div>
+                        <div class="form-group">
+                            <label for="detali">Обязательные комплектующие (крышки, баки, другие детали)</label>
+                            <textarea cols="3" class="form-control" id="detali"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="dop_izd">Дополнительные комплектные изделия, информация о комплекте</label>
+                            <textarea cols="3" class="form-control" id="dop_izd"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="spec_of_manuf">Специфика производства, обрезки, сборки, упаковки и хранения</label>
+                            <textarea cols="3" class="form-control" id="spec_of_manuf"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="qual_control">Процедура контроля качества (самые важные размеры, формы, плоскости)</label>
+                            <textarea cols="3" class="form-control" id="qual_control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="wall_thickn">Рекомендуемые веса и толщины стенок модификаций изделия, рекомендуемые режимы работы ротомашины</label>
+                            <textarea cols="3" class="form-control" id="wall_thickn"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="add_info">Дополнительная информация</label>
+                            <textarea cols="3" class="form-control" id="add_info"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -204,12 +215,12 @@
                 </div>
                 <div class="modal-body">
                         <div class='row'>
-                            <div class="col-md-4" style="margin-left: 15px;">
+                            <div class="col-md-5" style="margin-left: 15px;">
                                 <h4>Не загруженные файлы:</h4>
                                 <ul class="list-group" id="not_uploaded_files">
                                 </ul>
                             </div>
-                            <div class="col-md-7" style="margin-left: 15px;">
+                            <div class="col-md-6" style="margin-left: 15px;">
                                 <h4>Не заполненные поля:</h4>
                                 <ul class="list-group" id="not_filled_fields">
                                 </ul>
@@ -217,10 +228,10 @@
                         </div>
                         <div class='row'>
                             <div class="col-md-3" style="margin-left: 15px;">
-                                <button id="no_close_endtask_modal" type="button" class="btn btn-default" data-dismiss="modal">Вернуться к заполнению</button>
+                                <button id="no_close_endtask_modal" type="button" class="btn btn-success" data-dismiss="modal">Вернуться к заполнению</button>
                             </div>
                             <div class="col-md-3" style="margin-left: 15px;">
-                                <button id="ok_close_endtask_modal" type="button" class="btn btn-default" data-dismiss="modal">Уверен, завершить задачу</button>
+                                <button id="ok_close_endtask_modal" type="button" class="btn btn-warning" data-dismiss="modal">Уверен, завершить задачу</button>
                             </div>
                         </div>
 
@@ -232,6 +243,7 @@
     <script>
         var mold_folder = "{{ proc.vars.mold_folder }}";
         var mold_files = [];
+        var autosave_interval;
 
         function get_upload_props(){
             var selected_option = $('#filename_select option:selected');
@@ -239,7 +251,7 @@
             if (selected_option_val.indexOf('/') > -1)
                 var path = selected_option_val;
             else
-                var path =  selected_option.parent().attr('label') + '/' + selected_option_val;
+                var path =  selected_option.parent().attr('value') + '/' + selected_option_val;
             path=path.split('/');
             path[0] = mold_folder + '/' + path[0];
             var orig_name = path[1];
@@ -253,7 +265,7 @@
                 i++;
             }
             path[1] = new_name;
-             $('#mold_files').fileupload('option',{formData: {folder_path: path[0], action: 'upload_file',  csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut:'molds_documentation', chg_filename: path[1]}});
+             $('#mold_files').fileupload('option',{formData: {folder_path: path[0], action: 'upload_file',  csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut:'molds_documentation', chg_filename: path[1]}, dropZone: $('#mold_files_portal')});
             return path;
         }
 
@@ -261,17 +273,21 @@
             $('#fields_fill_button_div').empty();
             for (var i = 0; i < mold_files.length; i++)
                 if (mold_files[i]['name']=='спецификация.txt' && mold_files[i]['folder_path'] == '')
-                    $('#fields_fill_button_div').append('<button id="fields_fill_button"  style="margin-bottom: 20px;" class="btn btn-default">Заполнить поля из существующей спецификации</button>');
+                    $('#fields_fill_button_div').append('<button id="fields_fill_button"  style="margin-bottom: 20px;" class="btn btn-success">Заполнить поля из существующей спецификации</button>');
         }
 
         function color_select() {
-            $("#filename_select option").css('color','#555');
+            $("#filename_select option").css('color','#555').attr('data-uploaded','false');
             $("#filename_select").css('color','#555');
             $("#filename_select optgroup").css('color','#555');
             for (var i = 0; i < mold_files.length; i++)
             {
-                $("#filename_select option[value*='" + mold_files[i]['name']+"']").css('color','green');
-                if ($("#filename_select option:selected[value*='"+mold_files[i]['name']+"']").length>0) {
+                var mold_filename = mold_files[i]['name'].split('.').slice(0, -1).join('');
+
+                $('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']").css('color','green').attr('data-uploaded','true');
+
+
+                if ($('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']").length>0) {
                     $("#filename_select").css('color','green');
                 }
             }
@@ -283,7 +299,7 @@
                         $('#dropbox_button').css('display', 'none');
                         for (var i = 0; i < data.length; i++)
                         {
-                            if (data[i]['name']=='спецификация.txt' && data[i]['folder_path'] == '') continue
+                            //if (data[i]['name']=='спецификация.txt' && data[i]['folder_path'] == '') continue
                             var href_str = 'href="{{ MEDIA_URL }}' +'Dropbox/molds_documentation/'+ mold_folder + '/' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
                             var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['folder_path']+ '/'+data[i]['name']+'</a><span  class="glyphicon glyphicon-remove"  style="display: inline-block; margin-left: 8px; cursor: pointer;" onclick="delete_mold_file('+"'" +data[i]['name']+"'" +','+"'"+ mold_folder + '/'+ data[i]['folder_path'] +"'" +','+"'"+'molds_documentation'+"'"+')" ></span></p>';
                             $('#mold_files_list').append(append_str);
@@ -317,7 +333,7 @@
         }
 
         function autosave_fields_run(){
-                window.setInterval(autosave_fields,10000);
+                $('#tab_fields input').add('#tab_fields textarea').change(function(){autosave_fields();})
         }
 
         function autofill_fields() {
@@ -330,44 +346,48 @@
 
         function write_spec (){
             var fields = $('#tab_fields input').add('#tab_fields textarea');
-            var text = '';
+            var text = '\uFEFF';
+            var fields_text = '';
             for (var i = 0; i < fields.length; i++) {
-                var field = $(fields[i])
+                var field = $(fields[i]);
                 var field_val = field.val();
+                fields_text += field_val;
                 var field_label = $('label[for=' + field.attr('id') + ']').text();
-                text += '[' + field_label + ']\n' + field_val + '\n'
-                text = '\uFEFF' + text
+                text += '[' + field_label + ']\n' + field_val + '\n';
             }
+            if (fields_text.replace(/\s/g, "") != '') {
+                var boundary = "---------------------------boundry";
+                var body = '--' + boundary + '\r\n'
+                     + 'Content-Disposition: form-data; name="folder_path";\r\n\r\n'
+                     + mold_folder + '/\r\n'
+                     + '--' + boundary + '\r\n'
+                     + 'Content-Disposition: form-data; name="action";\r\n\r\n'
+                     + 'upload_file\r\n'
+                     + '--' + boundary + '\r\n'
+                     + 'Content-Disposition: form-data; name="folder_shortcut";\r\n\r\n'
+                     + 'molds_documentation\r\n'
+                     + '--' + boundary + '\r\n'
+                     + 'Content-Disposition: form-data; name="csrfmiddlewaretoken";\r\n\r\n'
+                     + '{{ csrf_token }}\r\n'
+                     + '--' + boundary + '\r\n'
+                     + 'Content-Disposition: form-data; name="chg_filename";\r\n\r\n'
+                     + 'спецификация\r\n'
+                     + '--' + boundary + '\r\n'
+                     + 'Content-Disposition: form-data; name="files[]";'
+                     + 'filename="spec.txt"\r\n'
+                     + 'Content-type: plain/text\r\n\r\n'
+                     + text + '\r\n'
+                     + '--'+ boundary + '--';
+                $.ajax({
+                    contentType: "multipart/form-data; boundary="+boundary,
+                    data: body,
+                    type: "POST",
+                    async: false,
+                    url: "{% url "activeBPM:file-control" %}"
+                });
+            }
+            else delete_mold_file('спецификация.txt', mold_folder, 'molds_documentation');
 
-            var boundary = "---------------------------boundry";
-            var body = '--' + boundary + '\r\n'
-                 + 'Content-Disposition: form-data; name="folder_path";\r\n\r\n'
-                 + mold_folder + '/\r\n'
-                 + '--' + boundary + '\r\n'
-                 + 'Content-Disposition: form-data; name="action";\r\n\r\n'
-                 + 'upload_file\r\n'
-                 + '--' + boundary + '\r\n'
-                 + 'Content-Disposition: form-data; name="folder_shortcut";\r\n\r\n'
-                 + 'molds_documentation\r\n'
-                 + '--' + boundary + '\r\n'
-                 + 'Content-Disposition: form-data; name="csrfmiddlewaretoken";\r\n\r\n'
-                 + '{{ csrf_token }}\r\n'
-                 + '--' + boundary + '\r\n'
-                 + 'Content-Disposition: form-data; name="chg_filename";\r\n\r\n'
-                 + 'спецификация\r\n'
-                 + '--' + boundary + '\r\n'
-                 + 'Content-Disposition: form-data; name="files[]";'
-                 + 'filename="spec.txt"\r\n'
-                 + 'Content-type: plain/text\r\n\r\n'
-                 + text + '\r\n'
-                 + '--'+ boundary + '--';
-            $.ajax({
-                contentType: "multipart/form-data; boundary="+boundary,
-                data: body,
-                type: "POST",
-                async: false,
-                url: "{% url "activeBPM:file-control" %}"
-            });
         }
 
         function read_spec(){
@@ -447,6 +467,10 @@
                 $('#custom_folder').focus();
             });
 
+            $('#custom_folder_close').click(function() {
+                $('#filename_select')[0].selectedIndex = 0;
+            });
+
             $('#mold_files').fileupload({
                 autoUpload: true,
                 done: function () {
@@ -473,9 +497,11 @@
                 $('#not_uploaded_files').empty();
                 for (var i = 0; i < options.length; i++)
                 {
-                   el = $(options[i]);
-                   if (el.css('color') !=  'green' && el.parent().attr('label') != 'Другое'){
-                       $('#not_uploaded_files').append('<li class="list-group-item">' + (i + 1) + '. ' + el.val() + '</li>');
+                   var el = $(options[i]);
+                   if (el.attr('data-uploaded') !=  'true' && el.parent().attr('value') != 'Другое'){
+                       var el_val = el.val()
+                       var path =  el.parent().attr('value') + '/' + el_val;
+                       $('#not_uploaded_files').append('<li class="list-group-item">' + path + '</li>');
                        show_modal = true;
                    }
                 }
@@ -486,7 +512,7 @@
                      var field = $(fields[i])
                      var field_val = field.val();
                      if (field_val == ''){
-                         $('#not_filled_fields').append('<li class="list-group-item">' + (i + 1) + '. ' + $('label[for=' + field.attr('id') +']').text() + '</li>');
+                         $('#not_filled_fields').append('<li class="list-group-item">'  + (i + 1) + '. '+ $('label[for=' + field.attr('id') +']').text() + '</li>');
                         show_modal = true;
                      }
                 }
