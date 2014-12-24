@@ -42,8 +42,17 @@
 
           <ul class="nav navbar-nav">
             <li class="{% active 'activeBPM:process-dashboard' %}"><a href="{% url "activeBPM:process-dashboard" %}">Главная</a></li>
+            <li class="{% active 'activeBPM:documentation-view' %}"><a href="{% url 'activeBPM:documentation-view' %}">Просмотр документации</a></li>
+            <li class="{% active 'activeBPM:documentation-audit' %}"><a href="{% url 'activeBPM:documentation-audit' %}">Проверка документации</a></li>
             <li class="{% active 'activeBPM:all-processes' %}"><a href="{% url "activeBPM:all-processes" %}">Все процессы</a></li>
             <li class="{% active 'activeBPM:process-control' %}"><a href="{% url "activeBPM:process-control" %}">Управление процессами</a></li>
+            <!-- <li class="dropdown {% active 'activeBPM:documentation-audit' %} {% active 'activeBPM:documentation-view' %}">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Средства<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li class="{% active 'activeBPM:documentation-audit' %}"><a href="{% url 'activeBPM:documentation-audit' %}">Проверка документации</a></li>
+                <li class="{% active 'activeBPM:documentation-view' %}"><a href="{% url 'activeBPM:documentation-view' %}">Просмотр документации</a></li>
+              </ul>
+            </li> -->
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="{% url "admin:logout" %}?next={{ request.get_full_path }}">Выйти</a></li>

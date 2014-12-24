@@ -13,36 +13,7 @@
                 <div class="col-md-12">
                     <label class='contol-label' for='filename_select' style='margin-top: 10px;  width: 125px; float: left;'>Добавить файл</label>
                     <div class='form-group' style='width:295px; float: left;'>
-                        <select class='form-control' id='filename_select'>
-                            <optgroup value='0. Техническое задание' label='0. Техническое задание'>
-                                <option value='ТЗ'>ТЗ</option>
-                            </optgroup>
-                            <optgroup value='1. Изделие' label='1. Изделие'>
-                                <option value='Модель изделия'>Модель изделия</option>
-                                <option value='Чертеж изделия'>Чертеж изделия</option>
-                            </optgroup>
-                            <optgroup value='2. Форма' label='2. Форма'>
-                                <option value='Модель формы'>Модель формы</option>
-                                <option value='Модель формы с обвязкой'>Модель формы с обвязкой</option>
-                                <option value='Чертеж формы'>Чертеж формы</option>
-                                <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
-                                <option value='Чертеж формы позиции'>Чертеж формы позиции</option>
-                            </optgroup>
-                            <optgroup value='3. Раскрой' label='3. Раскрой'>
-                                <option value='Деталировка'>Деталировка *</option>
-                                <option value='Раскрой'>Раскрой *</option>
-                            </optgroup>
-                            <optgroup value='4. Проектная документация' label='4. Проектная документация (pdf)'>
-                                <option value='Титульная страница'>Титульная страница</option>
-                                <option value='Чертеж изделия'>Чертеж изделия</option>
-                                <option value='Чертеж формы'>Чертеж формы</option>
-                                <option value='Чертеж формы с обвязкой'>Чертеж формы с обвязкой</option>
-                                <option value='Деталировка'>Деталировка *</option>
-                            </optgroup>
-                            <optgroup id="other_optgroup" value='Другое' label='Другое'>
-                                <option value='Другой файл'>Другой файл</option>
-                            </optgroup>
-                        </select>
+                        {% include 'activeBPM/proc_templates/molds_documentation/common_filenames.html' %}
                     </div>
                 </div>
             </div>
@@ -55,8 +26,8 @@
                             <input id="mold_files" type="file" name="files[]" data-url="{% url "activeBPM:file-control" %}">
                          </span>
                     </div>
-                    <div id="mold_files_portal" style="width: 230px; float: left;" >
-                        <div style="cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
+                    <div id="mold_files_portal" style="width: 430px; float: left;" >
+                        <div style="width: 230px; cursor: pointer; border: 1px #bbb dashed; color: #aaa; line-height: 31px; text-align: center;"><span>или перетащите файлы сюда</span></div>
                     </div>
                 </div>
             </div>
@@ -116,7 +87,7 @@
                                                     <li><a href="#">1. Изделие</a></li>
                                                     <li><a href="#">2. Форма</a></li>
                                                     <li><a href="#">3. Раскрой</a></li>
-                                                    <li><a href="#">4. Проектная документация</a></li>
+                                                    <li><a href="#">4. Проектная документация (pdf)</a></li>
                                                     <li><a href="#">Другая папка</a></li>
                                                 </ul>
                                             </div>
@@ -146,57 +117,7 @@
         <div class='tab-pane' id='tab_fields'>
             <div class="row" style="margin-top: 20px;">
                 <div class="col-md-12">
-                    <div id='fields_div' style="width: 420px;">
-                        <div id="fields_fill_button_div"></div>
-                        <div class="form-group">
-                            <label for="buh_name">Бухгалетрское названия изделия (в документах, 1с)</label>
-                            <input type="text" class="form-control" id="buh_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="expl">Назначение изделия и условия эксплуатации, для кого предназначено изделие (группы покупателей\компания)</label>
-                            <textarea cols="3" class="form-control" id="expl"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="colors">Цвета (основные)</label>
-                            <input type="text" class="form-control" id="colors">
-                        </div>
-                        <div class="form-group">
-                            <label for="zakladnie">Закладные (количество\тип\залиываются ли)</label>
-                            <textarea cols="3" class="form-control" id="zakladnie"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="materials">Материалы для раскроя, материалы и примитивы для сборки, материалы для обвязки. Дополнительная информация о сборке.</label>
-                            <textarea cols="3" rows="4" class="form-control" id="materials"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="weight">Вес формы (с обвязкой\без)</label>
-                            <input type="text" class="form-control" id="weight">
-                        </div>
-                        <div class="form-group">
-                            <label for="detali">Обязательные комплектующие (крышки, баки, другие детали)</label>
-                            <textarea cols="3" class="form-control" id="detali"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="dop_izd">Дополнительные комплектные изделия, информация о комплекте</label>
-                            <textarea cols="3" class="form-control" id="dop_izd"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="spec_of_manuf">Специфика производства, обрезки, сборки, упаковки и хранения</label>
-                            <textarea cols="3" class="form-control" id="spec_of_manuf"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="qual_control">Процедура контроля качества (самые важные размеры, формы, плоскости)</label>
-                            <textarea cols="3" class="form-control" id="qual_control"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="wall_thickn">Рекомендуемые веса и толщины стенок модификаций изделия, рекомендуемые режимы работы ротомашины</label>
-                            <textarea cols="3" class="form-control" id="wall_thickn"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="add_info">Дополнительная информация</label>
-                            <textarea cols="3" class="form-control" id="add_info"></textarea>
-                        </div>
-                    </div>
+                    {% include 'activeBPM/proc_templates/molds_documentation/specification_fields.html' %}
                 </div>
             </div>
         </div>
@@ -217,12 +138,12 @@
                         <div class='row'>
                             <div class="col-md-5" style="margin-left: 15px;">
                                 <h4>Не загруженные файлы:</h4>
-                                <ul class="list-group" id="not_uploaded_files">
+                                <ul class="list-group" id="not_uploaded_files" style="margin-left: 10px; list-style-type: none;">
                                 </ul>
                             </div>
                             <div class="col-md-6" style="margin-left: 15px;">
-                                <h4>Не заполненные поля:</h4>
-                                <ul class="list-group" id="not_filled_fields">
+                                <h4>Незаполненные поля спецификации:</h4>
+                                <ul class="list-group" id="not_filled_fields" style="margin-left: 10px; list-style-type: none;">
                                 </ul>
                             </div>
                         </div>
@@ -243,7 +164,6 @@
     <script>
         var mold_folder = "{{ proc.vars.mold_folder }}";
         var mold_files = [];
-        var autosave_interval;
 
         function get_upload_props(){
             var selected_option = $('#filename_select option:selected');
@@ -252,18 +172,22 @@
                 var path = selected_option_val;
             else
                 var path =  selected_option.parent().attr('value') + '/' + selected_option_val;
+
+
+
+            var mold_files_names = mold_files.map(function (a){return (a['folder_path']+'/'+(a['name']).split('.')[0])});
+            var i = 2;
+            var nm = path;
+            while (mold_files_names.indexOf(nm) > -1) {
+                nm = path + ' - ' + i
+                i++;
+            }
+            path=nm;
             path=path.split('/');
             path[0] = mold_folder + '/' + path[0];
             var orig_name = path[1];
             var new_name = orig_name;
-            var mold_files_names = mold_files.map(function (a){return a['name'].split('.')[0]});
-            var i = 2;
-            while (mold_files_names.indexOf(new_name) > -1) {
-                new_name = orig_name.split('.');
-                new_name[0] = new_name[0] + ' - ' + i
-                new_name = new_name.join('');
-                i++;
-            }
+
             path[1] = new_name;
              $('#mold_files').fileupload('option',{formData: {folder_path: path[0], action: 'upload_file',  csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut:'molds_documentation', chg_filename: path[1]}, dropZone: $('#mold_files_portal')});
             return path;
@@ -287,7 +211,7 @@
                 $('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']").css('color','green').attr('data-uploaded','true');
 
 
-                if ($('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']").length>0) {
+                if ($('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']:selected").length>0) {
                     $("#filename_select").css('color','green');
                 }
             }
@@ -391,6 +315,7 @@
         }
 
         function read_spec(){
+            var spec_exists = false;
             var string_data = $.ajax({
                     url: "{{ MEDIA_URL }}/Dropbox/molds_documentation/" + mold_folder +'/спецификация.txt',
                     async: false
@@ -404,9 +329,12 @@
                 var field_id = $('label').filter(function() {
                     return $(this).text() == field_props[0];
                 }).attr('for');
-
-                $('#' + field_id).val(field_props[1]);
+                if (field_props[1]) {
+                    $('#' + field_id).val(field_props[1]);
+                    spec_exists = true;
+                }
             }
+            return spec_exists;
         }
 
         function end_task(){
@@ -416,9 +344,8 @@
         }
 
         $(document).ready(function(){
-            autofill_fields();
+            if (!read_spec()) autofill_fields();
             autosave_fields_run();
-
             get_mold_files();
 
 
@@ -498,10 +425,10 @@
                 for (var i = 0; i < options.length; i++)
                 {
                    var el = $(options[i]);
-                   if (el.attr('data-uploaded') !=  'true' && el.parent().attr('value') != 'Другое'){
+                   if (el.attr('data-uploaded') != 'true' && el.parent().attr('value') != 'Другое'){
                        var el_val = el.val()
                        var path =  el.parent().attr('value') + '/' + el_val;
-                       $('#not_uploaded_files').append('<li class="list-group-item">' + path + '</li>');
+                       $('#not_uploaded_files').append('<li>' + path + '</li>');
                        show_modal = true;
                    }
                 }
@@ -511,8 +438,8 @@
                 for (var i = 0; i < fields.length; i++){
                      var field = $(fields[i])
                      var field_val = field.val();
-                     if (field_val == ''){
-                         $('#not_filled_fields').append('<li class="list-group-item">'  + (i + 1) + '. '+ $('label[for=' + field.attr('id') +']').text() + '</li>');
+                     if (field_val.replace(/\s/g, "").replace('-', "") == ''){
+                         $('#not_filled_fields').append('<li>'  + (i + 1) + '. '+ $('label[for=' + field.attr('id') +']').text() + '</li>');
                         show_modal = true;
                      }
                 }

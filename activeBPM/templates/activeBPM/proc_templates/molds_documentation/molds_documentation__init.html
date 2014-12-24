@@ -12,9 +12,9 @@
                     <!--<option value="designers_group" >Конструкторский отдел (любой сотрудник)</option>-->
                     {% get_group_members 'designers' as designers %}
                     {% for designer in designers %}
-                        <option value="{{ designer.id }}" >{{ designer.firstName }} {{ designer.lastName }}</option>
+                        <option value="{{ designer.id }}" {% if request.user.bpmsuser.login == designer.id %}selected{% endif %}>{{ designer.firstName }} {{ designer.lastName }}</option>
                     {% endfor %}
-                    <option value="124bit">Юлий Бройде</option>
+                    <option value="124bit" {% if request.user.bpmsuser.login == '124bit' %}selected{% endif %}>Юлий Бройде</option>
                 </select>
             </div>
          </div>

@@ -20,7 +20,25 @@
         </div>
     </div>
 
+    <div class='row' style="margin-top: 20px;">
+        <div class="col-md-12">
+            <label>Не загруженные файлы:</label>
+            <ul class="list-group" id="not_uploaded_files" style="margin-left: 20px; list-style-type: none;">
+            </ul>
+        </div>
+        <div class="col-md-12">
+            <label>Не заполненные поля спецификации:</label>
+            <ul class="list-group" id="not_filled_fields" style="margin-left: 20px; list-style-type: none;">
+            </ul>
+        </div>
+    </div>
+    <div style="display: none;">
+        {% include 'activeBPM/proc_templates/molds_documentation/common_filenames.html' %}
+        {% include 'activeBPM/proc_templates/molds_documentation/specification_fields.html' %}
+    </div>
     <hr>
+
+
 
     <style>
         @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css);
@@ -36,6 +54,55 @@
     <script>
         var mold_folder = "{{ proc.vars.mold_folder }}";
         var mold_files;
+
+        function read_spec(){
+
+            var string_data = $.ajax({
+                    url: "{{ MEDIA_URL }}/Dropbox/molds_documentation/" + mold_folder +'/спецификация.txt',
+                    async: false
+                 }).responseText;
+            string_data = string_data.substring(string_data.indexOf("["));
+            string_data = string_data.substring(1);  // one more for '['
+            string_data = string_data.substring(0, string_data.length - 1);
+            var split_text = string_data.split('\n[');
+            for (var i = 0; i < split_text.length; i++) {
+                var field_props = split_text[i].split(']\n');
+                var field_id = $('label').filter(function() {
+                    return $(this).text() == field_props[0];
+                }).attr('for');
+
+                $('#' + field_id).val(field_props[1]);
+            }
+
+            var fields = $('#fields_div input').add('#fields_div textarea');
+            for (var i = 0; i < fields.length; i++){
+                 var field = $(fields[i]);
+                 var field_val = field.val();
+
+                 if (field_val.replace(/\s/g, "").replace('-', "") == ''){
+                     $('#not_filled_fields').append('<li>'  + (i + 1) + '. '+ $('label[for=' + field.attr('id') +']').text() + '</li>');
+                 }
+            }
+        }
+
+        function color_select() {
+            $("#filename_select option").css('color','#555').attr('data-uploaded','false');
+            $("#filename_select").css('color','#555');
+            $("#filename_select optgroup").css('color','#555');
+            for (var i = 0; i < mold_files.length; i++)
+            {
+                var mold_filename = mold_files[i]['name'].split('.').slice(0, -1).join('');
+
+                $('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']").css('color','green').attr('data-uploaded','true');
+
+
+                if ($('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']:selected").length>0) {
+                    $("#filename_select").css('color','green');
+                }
+            }
+        }
+
+
         function get_mold_files() {
             $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
                         $('#mold_files_list').html('');
@@ -47,10 +114,24 @@
                             $('#mold_files_list').append(append_str);
                         }
                         if (data.length>0) $('#dropbox_button').css('display', 'block');
-                        else $('#mold_files_list').html('<p>Нет файлов</p>')
+                        else $('#mold_files_list').html('<p>Нет файлов</p>');
                         mold_files = data;
+                        color_select();
+
+                        var options = $('#filename_select option');
+                        for (var i = 0; i < options.length; i++)
+                        {
+                           var el = $(options[i]);
+                           if (el.attr('data-uploaded') != 'true' && el.parent().attr('value') != 'Другое'){
+                               var el_val = el.val()
+                               var path =  el.parent().attr('value') + '/' + el_val;
+                               $('#not_uploaded_files').append('<li>' + path + '</li>');
+                           }
+                        }
                     });
         }
+
+
 
         function end_task(){
             $.post('{% url "activeBPM:zip-folder-task-file" %}', {folder_path: mold_folder, csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation', task_id: '{{ task.id }}', instnc_id: '{{ proc.instnc_id }}', purpose: 'comment'});
@@ -58,11 +139,12 @@
         }
 
         $(document).ready(function(){
+            get_mold_files();
+            read_spec();
+
             $('#dropbox_button').click(function(){
                 window.open('https://www.dropbox.com/home/molds_documentation/{{ proc.vars.mold_folder }}');
             });
-            get_mold_files();
-
 
             $('#task_end_button').click(function(e){
                 e.preventDefault();
@@ -72,6 +154,7 @@
 
             $('#task_end_button_2').click(function(e){
                 e.preventDefault();
+
                 $('#main_task_form').append('<input type="hidden" name="documentation_valid" value="True" />');
                 end_task();
             });
@@ -79,6 +162,7 @@
         });
     </script>
 {% endblock %}
+
 {% block submit_button %}
     <div class="row" style="margin-top:20px;">
         <div class='col-md-12'>
