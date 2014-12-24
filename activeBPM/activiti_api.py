@@ -88,9 +88,14 @@ class ActivityREST():
     def get_task_files_props(task_id, proc_id, purpose):
         task_comment_files = TaskFile.objects.filter(key=proc_id + '_' + task_id,
                                                      purpose=purpose).order_by('pk')
-        task_comment_files_props = [{'name': ntpath.split(model.file.name)[1], 'file_pk': model.pk,
-                                     'size': model.file.size, 'purpose': model.purpose}
-                                    for model in task_comment_files]
+        task_comment_files_props = []
+        for model in task_comment_files:
+            try:
+                task_comment_files_props.append({'name': ntpath.split(model.file.name)[1], 'file_pk': model.pk,
+                                             'size': model.file.size, 'purpose': model.purpose})
+            except FileNotFoundError:
+                pass
+
         return task_comment_files_props
 
 

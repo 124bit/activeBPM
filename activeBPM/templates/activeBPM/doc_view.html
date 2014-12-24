@@ -14,17 +14,17 @@
     </style>
 
     {% get_mold_folders  as mold_folders %}
-    <div class='row'>
+  <!--  <div class='row'>
         <div class='col-md-12'>
-            <button type="button" class="btn btn-small btn-default" id='maximize'>Развернуть все <span class="glyphicon glyphicon glyphicon-chevron-down" aria-hidden="true"></span></button>
-            <button type="button" class="btn btn-small btn-default" id='minimize'>Свернуть все <span class="glyphicon glyphicon glyphicon-chevron-up" aria-hidden="true"></span></button>
+            <button type="button" class="btn btn-small btn-default" id='maximize'>Развернуть все <span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+            <button type="button" class="btn btn-small btn-default" id='minimize'>Свернуть все <span class="glyphicon glyphicon glyphicon-chevron-down" aria-hidden="true"></span></button>
         </div>
     </div>
-    <br>
+    <br> -->
 
     {% for folder in mold_folders %}
         <div class='row mold_div'>
-            <div class='col-md-12'><h4 style="float:left;" class='folder_name'>{{ folder }}</h4><span style=" margin-left: 10px; margin-top: 12px; float:left; cursor: pointer;" class="glyphicon glyphicon-chevron-down toggle" aria-hidden="true"></span></div>
+            <div class='col-md-12'><span style=" margin-right: 10px; margin-top: 12px; float:left; cursor: pointer;" class="glyphicon glyphicon-chevron-right toggle" aria-hidden="true"></span><h4 style="float:left;" class='folder_name'>{{ folder }}</h4></div>
             <div class='missing' style="display:none;">
                 <div class='col-md-12'>
                     <div style="width: 200px; margin-bottom: 7px;">
@@ -39,11 +39,23 @@
                 </div>
                 <div class='col-md-12' style="margin-bottom: -10px;">
                     <label style="margin-left: 10px; ">Файлы:</label>
-                    <ul class="list-group not_uploaded_files" style="margin-left: 30px; list-style-type: none;">
+                    <ul class="list-group uploaded_files" style="margin-left: 30px; list-style-type: none;">
                     </ul>
                 </div>
                 <div class='col-md-12'>
                     <label style="margin-left: 10px; ">Спецификация:</label>
+                    <ul class="list-group filled_fields" style="margin-left: 30px; list-style-type: none;">
+                    </ul>
+                    <hr>
+                </div>
+
+                <div class='col-md-12' style="margin-bottom: -10px;">
+                    <label style="margin-left: 10px; ">Недостающие файлы:</label>
+                    <ul class="list-group not_uploaded_files" style="margin-left: 30px; list-style-type: none;">
+                    </ul>
+                </div>
+                <div class='col-md-12'>
+                    <label style="margin-left: 10px; ">Не заполненные поля спецификации:</label>
                     <ul class="list-group not_filled_fields" style="margin-left: 30px; list-style-type: none;">
                     </ul>
                 </div>
@@ -61,11 +73,73 @@
         var mold_files;
 
 
+        function color_select() {
+            $("#filename_select option").css('color','#555').attr('data-uploaded','false');
+            $("#filename_select").css('color','#555');
+            $("#filename_select optgroup").css('color','#555');
+            for (var i = 0; i < mold_files.length; i++)
+            {
+                var mold_filename = mold_files[i]['name'].split('.').slice(0, -1).join('');
 
+                $('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']").css('color','green').attr('data-uploaded','true');
+
+
+                if ($('optgroup[value="'+mold_files[i]['folder_path']+'"]').find("option[value='" + mold_filename +"']:selected").length>0) {
+                    $("#filename_select").css('color','green');
+                }
+            }
+        }
 
         function audit_mold(){
             var mold_div_el = $(this);
             var folder_name = mold_div_el.find('.folder_name').text();
+            var uploaded_files_cont = mold_div_el.find('.uploaded_files');
+            var filled_fields_cont = mold_div_el.find('.filled_fields');
+
+            var string_data = $.ajax({
+                    url: "{{ MEDIA_URL }}/Dropbox/molds_documentation/" + folder_name +'/спецификация.txt',
+                    async: false
+                 }).responseText;
+            string_data = string_data.substring(string_data.indexOf("["));
+            string_data = string_data.substring(1);  // one more for '['
+            string_data = string_data.substring(0, string_data.length - 1);
+            var split_text = string_data.split('\n[');
+            for (var i = 0; i < split_text.length; i++) {
+                var field_props = split_text[i].split(']\n');
+                var field_id = $('label').filter(function() {
+                    return $(this).text() == field_props[0];
+                }).attr('for');
+
+                $('#' + field_id).val(field_props[1]);
+            }
+
+            var fields = $('#fields_div input').add('#fields_div textarea');
+            for (var i = 0; i < fields.length; i++){
+                 var field = $(fields[i]);
+                 var field_val = field.val();
+                 var field_label = $('label[for=' + field.attr('id') +']').text();
+                if (field_val) {
+                    filled_fields_cont.append('<em style="font-size:13px;"><strong>'+field_label+'</strong></em>');
+                    filled_fields_cont.append('<p style="margin-bottom: 5px;">'+field_val+'&nbsp;</p>');
+                }
+
+                 }
+
+
+            mold_folder = folder_name;
+            $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
+                            uploaded_files_cont.html('');
+                            mold_files = data;
+                            for (var i = 0; i < data.length; i++)
+                            {
+                                //if (data[i]['name']=='спецификация.txt' && data[i]['folder_path'] == '') continue
+                                var href_str = 'href="{{ MEDIA_URL }}' +'Dropbox/molds_documentation/'+ mold_folder + '/' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
+                                var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['folder_path']+ '/'+data[i]['name']+'</a></p>';
+                                uploaded_files_cont.append(append_str);
+                            }
+                        });
+
+
             var not_uploaded_files_cont = mold_div_el.find('.not_uploaded_files');
             var not_filled_fields_cont = mold_div_el.find('.not_filled_fields');
 
@@ -90,52 +164,61 @@
             for (var i = 0; i < fields.length; i++){
                  var field = $(fields[i]);
                  var field_val = field.val();
-                 var field_label = $('label[for=' + field.attr('id') +']').text();
-                 not_filled_fields_cont.append('<em style="font-size:13px;"><strong>'+field_label+'</strong></em>');
-                 not_filled_fields_cont.append('<p style="margin-bottom: 5px;">'+field_val+'&nbsp;</p>');
-                 }
 
+                 if (field_val.replace(/\s/g, "").replace('-', "") == ''){
+                     not_filled_fields_cont.append('<li>'  + (i + 1) + '. '+ $('label[for=' + field.attr('id') +']').text() + '</li>');
+                 }
+            }
 
             mold_folder = folder_name;
             $.post('{% url "activeBPM:file-control" %}', {folder_path: mold_folder, action: 'get_files_props', csrfmiddlewaretoken: '{{ csrf_token }}', folder_shortcut: 'molds_documentation'}, function (data) {
                             not_uploaded_files_cont.html('');
                             mold_files = data;
-                            for (var i = 0; i < data.length; i++)
+                            color_select();
+                            var options = $('#filename_select option');
+                            for (var i = 0; i < options.length; i++)
                             {
-                                //if (data[i]['name']=='спецификация.txt' && data[i]['folder_path'] == '') continue
-                                var href_str = 'href="{{ MEDIA_URL }}' +'Dropbox/molds_documentation/'+ mold_folder + '/' + data[i]['folder_path'] + '/' + data[i]['name'] + '"';
-                                var append_str = '<p><a ' + href_str + '><span class="glyphicon glyphicon-file"></span>'+data[i]['folder_path']+ '/'+data[i]['name']+'</a></p>';
-                                not_uploaded_files_cont.append(append_str);
+                               var el = $(options[i]);
+                               if (el.attr('data-uploaded') != 'true' && el.parent().attr('value') != 'Другое'){
+                                   var el_val = el.val();
+                                   var path =  el.parent().attr('value') + '/' + el_val;
+                                   not_uploaded_files_cont.append('<li>' + path + '</li>');
+                               }
                             }
+                            if (not_uploaded_files_cont.is(':empty') && not_filled_fields_cont.is(':empty'))
+                                mold_div_el.remove();
                         });
-
-
-
         }
 
         $(document).ready(function(){
             $('.mold_div').each(audit_mold);
             $('.toggle').click(function() {
-                $(this).parent().next().slideToggle();
-                if ($(this).hasClass('glyphicon-chevron-down')) {
-                    $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+                $(this).parent().parent().parent().find('.missing:visible').not($(this).parent().next()).hide();
+                $('.toggle').not($(this)).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+
+                $(this).parent().next().toggle();
+                $(window).scrollTop($(this).parent().offset().top - 20);
+                if ($(this).hasClass('glyphicon-chevron-right')) {
+                    $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
                 }
-                else if ($(this).hasClass('glyphicon-chevron-up'))
-                    $(this).removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+                else if ($(this).hasClass('glyphicon-chevron-down'))
+                    $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
             });
-            $('#maximize').click(
+
+
+            {% comment %}$('#maximize').click(
                     function(){
                         $('.missing').slideDown();
-                        $('.toggle').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+                        $('.toggle').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
                     }
 
             );
             $('#minimize').click(
                     function(){
                         $('.missing').slideUp();
-                        $('.toggle').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+                        $('.toggle').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
                     }
-            );
+            );{% endcomment %}
         });
     </script>
 {% endblock %}
