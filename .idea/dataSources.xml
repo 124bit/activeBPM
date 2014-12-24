@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="3699296201">
+    <data-source source="LOCAL" name="PostgreSQL - activiti_db@local" uuid="a3243114-3ae2-46e8-80c7-c011cc188c13">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/activiti_db</jdbc-url>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="PostgreSQL - activiti_db@prod" uuid="26c926f7-d831-4ca8-a6cc-f2166c9482e9">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://144.76.211.21:5432/activiti_db</jdbc-url>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="SQLite - django_db@local" uuid="6720d4da-70ad-44e1-9240-d5bff9a9b046">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/db.sqlite3</jdbc-url>
+      <libraries />
+    </data-source>
+  </component>
+</project>

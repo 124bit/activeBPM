@@ -365,7 +365,7 @@ def file_control(request):
                     file_size = os.path.getsize(file_path)/1024
                     files_props.append({'name': filename, 'size': file_size,
                                         'folder_path': branch[0].replace(folder_path, '')})
-            files_props.sort(key=lambda k: k['folder_path'])
+            files_props.sort(key=lambda k: (k['folder_path'], k['name']))
             return HttpResponse(json.dumps(files_props), content_type="application/json")
         elif action == 'delete_file':
             folder_shortcut = request.POST['folder_shortcut']

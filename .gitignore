@@ -1,4 +1,3 @@
 activeBPM/devhim/media/*
 *.pyc
-*.wsgi
-.idea/
+

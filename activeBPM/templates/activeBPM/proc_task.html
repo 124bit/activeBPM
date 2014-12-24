@@ -7,7 +7,7 @@
             <div class="panel panel-default" style="min-width: 420px;">
                 <div class="panel-heading">
                     {% block task_heading %}
-                        <h4> Задача: <i>{{ task.name }}</i></h4>
+                        <h4> Задача: <i>{{ task.name }}</i> (Процесс:<i> {{ proc.name }} {{ proc.vars.proc_individ_descr }}</i>)</h4>
                         <p> Статус: <i>{% if task.state == 'assigned' %}Взято в работу {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }}&nbsp;&nbsp;&nbsp;{% elif task.state == 'started' %}Назначено группе {{ task.groups.0.name|lower }}, но не взято в работу.&nbsp;&nbsp;&nbsp;{% elif task.state == 'finished' %}Окончено {{ task.assignee_profile.firstName.0 }}. {{ task.assignee_profile.lastName }}{% endif %}{% if task.suspended %}(процесс приостановлен){% endif %}</i>
                         {% if task.state == 'assigned' and not task.suspended %}
                             <span class="btn-group btn-group-xs">

@@ -12,16 +12,17 @@ def get_mold_folders(with_temp_docs=True):
     temp_doc_folder = os.path.join(finished_doc_folder, 'temp', '')
     doc_folders = []
     for doc_path in os.listdir(finished_doc_folder):
-        if not os.path.isfile(doc_path):
+        if not os.path.isfile(finished_doc_folder+doc_path):
             doc_path_folder = os.path.basename(os.path.normpath(doc_path))
             doc_folders.append(doc_path_folder)
 
     if with_temp_docs:
         for doc_path in os.listdir(temp_doc_folder):
-            if not os.path.isfile(doc_path):
+            if not os.path.isfile(temp_doc_folder+doc_path):
                 doc_path_folder = os.path.basename(os.path.normpath(doc_path))
                 doc_folders.append('temp/' + doc_path_folder)
     doc_folders.remove('temp')
+    doc_folders.sort()
     return doc_folders
 
 @register.assignment_tag(takes_context=True)

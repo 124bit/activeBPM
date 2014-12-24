@@ -2,6 +2,7 @@ __author__ = 'torn'
 
 from django.conf.urls import patterns, include, url
 from activeBPM import views
+from django.views.generic.base import TemplateView
 
 #TODO 404 page
 moldslist_patterns = patterns('',
@@ -16,6 +17,8 @@ moldslist_patterns = patterns('',
     url(r'^file-control$', views.file_control, name='file-control'),
     url(r'^var-control$', views.var_control, name='variable-control'),
     url(r'^process-xml$', views.proc_xml, name='process-xml'),
+    url(r'^doc-view$', TemplateView.as_view(template_name='activeBPM/doc_view.html'),
+        name='documentation-view'),
     url(r'^$', views.proc_dashboard_view, name='process-dashboard'),
 )
 
