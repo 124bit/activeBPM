@@ -8,6 +8,9 @@ from django.contrib.auth.decorators import login_required
 handler404 = 'site_utils.handler404'
 handler500 = 'site_utils.handler500'
 
+admin.site.site_header = 'УкрХимПласт - Разработка форм'
+admin.site_title = 'УкрХимПласт - Разработка форм'
+admin.index_title = 'УкрХимПласт - Разработка форм'
 
 @login_required
 def protected_serve(request, path, document_root=None, show_indexes=False):
