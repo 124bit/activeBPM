@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../adwords_morpher/.idea/adwords_morpher.iml" filepath="$PROJECT_DIR$/../adwords_morpher/.idea/adwords_morpher.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/devhim_dev.iml" filepath="$PROJECT_DIR$/.idea/devhim_dev.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../django_ukrhim/.idea/django_ukrhim.iml" filepath="$PROJECT_DIR$/../django_ukrhim/.idea/django_ukrhim.iml" />
       <module fileurl="file://$PROJECT_DIR$/../rest_test/.idea/rest_test.iml" filepath="$PROJECT_DIR$/../rest_test/.idea/rest_test.iml" />
     </modules>
   </component>
 </project>
-

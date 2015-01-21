@@ -7,6 +7,10 @@
           <mappings>
             <mapping deploy="/srv/www/activeBPM" local="$PROJECT_DIR$" web="/" />
           </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/devhim/media" />
+            <excludedPath path="/srv/www/activeBPM/devhim/media" />
+          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>
