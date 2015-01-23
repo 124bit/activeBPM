@@ -37629,7 +37629,7 @@
       </prototype>
     </procedure>
   </data-source>
-  <data-source name="SQLite - django_db@local" uuid="6720d4da-70ad-44e1-9240-d5bff9a9b046">
+  <data-source name="SQLite - activeBPM_django_db@local" uuid="6720d4da-70ad-44e1-9240-d5bff9a9b046">
     <database-info product="SQLite" version="3.7.6.3" jdbc-version="2.1" driver-name="SQLiteJDBC" driver-version="native"/>
     <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed"/>
     <schema name="" catalog=""/>
@@ -37962,5 +37962,14 @@
       <column name="name" sqlType="" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
       <column name="seq" sqlType="" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
     </table>
+  </data-source>
+  <data-source name="PostgreSQL - django_ukrhim_db@local" uuid="9d0f6094-1c9f-4400-a3b5-545aeadfe086">
+    <database-info product="PostgreSQL" version="9.3.5" jdbc-version="4.0" driver-name="PostgreSQL Native Driver" driver-version="PostgreSQL 9.3 JDBC4 (build 1100)">
+      <identifier-quote-string>&quot;</identifier-quote-string>
+    </database-info>
+    <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact"/>
+  </data-source>
+  <data-source name="PostgreSQL - django_ukrhim_db@prod" uuid="46c5b5a4-60a1-4fc4-9fbf-a2bdb9f686e6">
+    <database-info product="" version="" jdbc-version="" driver-name="" driver-version=""/>
   </data-source>
 </component>

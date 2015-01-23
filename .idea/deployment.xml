@@ -13,6 +13,24 @@
           </excludedPaths>
         </serverdata>
       </paths>
+      <paths name="django_ukrhim_code">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/srv/www/django_ukrhim" local="$PROJECT_DIR$/../django_ukrhim" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/../django_ukrhim/django_ukrhim/media/files" />
+            <excludedPath path="/srv/www/django_ukrhim/django_ukrhim/media/files" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="django_ukrhim_files">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/srv/www/django_ukrhim/django_ukrhim/media/files" local="$PROJECT_DIR$/../django_ukrhim/django_ukrhim/media/files" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
   </component>
 </project>
